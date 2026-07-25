@@ -247,11 +247,13 @@
     const userPrimeiroNome = localStorage.getItem('usuario_primeiro_nome') || '';
     const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
 
-    let firstName = userPrimeiroNome || (userName.trim() ? userName.trim().split(' ')[0] : userEmail.split('@')[0]);
-    if (firstName) {
+    let candidateName = userPrimeiroNome || (userName.trim() ? userName.trim().split(' ')[0] : '');
+    if (!candidateName || /^\d+$/.test(candidateName)) {
+      candidateName = userEmail ? userEmail.split('@')[0] : 'Participante';
+    }
+    let firstName = candidateName;
+    if (firstName && firstName !== 'Participante') {
       firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
-    } else {
-      firstName = 'Participante';
     }
     firstName = sanitizeText(firstName);
 
