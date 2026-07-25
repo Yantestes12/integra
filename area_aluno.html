@@ -311,7 +311,7 @@
           const text = await res.text();
           const clean = text.trim();
 
-          if (clean && clean !== '[object Object]' && !clean.includes('sem_email')) {
+          if (clean && clean !== '[object Object]') {
             const parsed = extrairJSON(clean);
             const list = obterListaDeMatriculas(parsed);
             if (list && list.length > 0) {
@@ -320,8 +320,6 @@
               return;
             }
           }
-          // Se o servidor retornou sem matrículas válidas
-          localStorage.removeItem('usuario_dados');
           btnConsultar.style.display = 'none';
         } catch (err) {
           console.error('Erro ao atualizar matrículas do servidor:', err);
@@ -404,7 +402,6 @@
       
       if (Array.isArray(parsed)) {
         parsed.forEach(item => {
-          if (item && item.email === 'sem_email') return;
           if (item && item.matriculas && Array.isArray(item.matriculas)) {
             rawList.push(...item.matriculas);
           } else if (item && typeof item === 'object') {
@@ -412,7 +409,6 @@
           }
         });
       } else if (typeof parsed === 'object') {
-        if (parsed.email === 'sem_email') return [];
         if (parsed.matriculas && Array.isArray(parsed.matriculas)) {
           rawList.push(...parsed.matriculas);
         } else {
