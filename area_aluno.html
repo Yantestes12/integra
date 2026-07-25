@@ -290,13 +290,17 @@
       const btnConsultar = document.getElementById('btn-consultar-matriculas');
       if (!btnConsultar) return;
 
-      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const localId = localStorage.getItem('usuario_id');
       const localDados = localStorage.getItem('usuario_dados');
-
-      if (email || localId || (localDados && localDados !== '[object Object]')) {
-        btnConsultar.style.display = 'inline-flex';
+      if (localDados && localDados !== '[object Object]') {
+        const parsed = extrairJSON(localDados);
+        const list = obterListaDeMatriculas(parsed);
+        if (list && list.length > 0) {
+          btnConsultar.style.display = 'inline-flex';
+          return;
+        }
       }
+
+      btnConsultar.style.display = 'none';
     }
 
     verificarSePossuiMatricula();
@@ -308,8 +312,12 @@
       
       const localDados = localStorage.getItem('usuario_dados');
       if (localDados && localDados !== '[object Object]' && localDados.trim().length > 0) {
-        renderizarListaMatriculas(localDados);
-        return;
+        const parsed = extrairJSON(localDados);
+        const list = obterListaDeMatriculas(parsed);
+        if (list && list.length > 0) {
+          renderizarListaMatriculas(localDados);
+          return;
+        }
       }
 
       bodyEl.innerHTML = `
@@ -366,31 +374,27 @@
 
     function obterListaDeMatriculas(parsed) {
       if (!parsed) return [];
-      let result = [];
+      let rawList = [];
       
       if (Array.isArray(parsed)) {
         parsed.forEach(item => {
+          if (item && item.email === 'sem_email') return;
           if (item && item.matriculas && Array.isArray(item.matriculas)) {
-            result.push(...item.matriculas);
+            rawList.push(...item.matriculas);
           } else if (item && typeof item === 'object') {
-            if (item.id || item.aluno_nome || item.nome_aluno || item.nome) {
-              result.push(item);
-            }
+            rawList.push(item);
           }
         });
       } else if (typeof parsed === 'object') {
+        if (parsed.email === 'sem_email') return [];
         if (parsed.matriculas && Array.isArray(parsed.matriculas)) {
-          result.push(...parsed.matriculas);
+          rawList.push(...parsed.matriculas);
         } else {
-          result.push(parsed);
+          rawList.push(parsed);
         }
       }
 
-      if (result.length === 0 && Array.isArray(parsed)) {
-        result = parsed;
-      }
-
-      return result;
+      return rawList.filter(m => m && typeof m === 'object' && (m.id || m.aluno_nome || m.nome_aluno || m.nome || m.name));
     }
 
     function renderizarListaMatriculas(rawText) {
