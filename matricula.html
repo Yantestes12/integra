@@ -32,6 +32,14 @@
             padding: 0; 
         }
 
+        html, body {
+            overflow-x: hidden !important;
+            width: 100% !important;
+            max-width: 100vw !important;
+            position: relative;
+            touch-action: pan-y;
+        }
+
         body {
             font-family: var(--font-main);
             min-height: 100vh;
@@ -724,15 +732,26 @@
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 10px 8px !important;
+            }
             .login-card {
-                padding: 20px 16px;
+                padding: 18px 14px !important;
+                border-radius: 16px;
+                box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
             }
             .progress-container {
-                margin-bottom: 20px;
+                margin-bottom: 14px !important;
             }
             .field-row {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
+            }
+            .logo-partnership img {
+                max-height: 42px !important;
+            }
+            .login-title {
+                font-size: 20px !important;
             }
         }
     </style>
@@ -1734,7 +1753,12 @@
     function mostrarStep(stepNum) {
         currentStep = stepNum;
         updateStepVisibility();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        var card = document.querySelector('.login-card');
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
     }
 
     function validateStep(step) {
