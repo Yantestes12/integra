@@ -286,158 +286,142 @@
       }
     }
 
-    async function verificarSePossuiMatricula() {
+    function verificarSePossuiMatricula() {
       const btnConsultar = document.getElementById('btn-consultar-matriculas');
       if (!btnConsultar) return;
 
       const localId = localStorage.getItem('usuario_id');
       const localDados = localStorage.getItem('usuario_dados');
-      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
 
-      // Se já possui ID ou dados salvos localmente
+      // Se possui ID ou dados de matrícula salvos localmente pelo login
       if ((localId && localId.trim().length > 0) || (localDados && localDados.trim().length > 0 && localDados !== '[object Object]')) {
         btnConsultar.style.display = 'inline-flex';
-      }
-
-      // Verificação em segundo plano no webhook buscarmatricula
-      if (email) {
-        try {
-          const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(localId || '')}`;
-          const res = await fetch(url);
-          const text = await res.text();
-          const clean = text.trim();
-          if (clean && clean !== '[object Object]' && !clean.includes('nenhuma') && !clean.includes('não existe')) {
-            localStorage.setItem('usuario_dados', clean);
-            btnConsultar.style.display = 'inline-flex';
-          }
-        } catch(err) {
-          console.error('Erro ao verificar matrícula:', err);
-        }
       }
     }
 
     verificarSePossuiMatricula();
 
-    async function buscarEMostrarMatricula() {
-      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const id = localStorage.getItem('usuario_id') || '';
+    function buscarEMostrarMatricula() {
       const modal = document.getElementById('dadosModalOverlay');
-      const bodyEl = document.getElementById('dadosModalContent');
-      
       modal.style.display = 'flex';
-      bodyEl.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:16px;font-weight:700;color:#059669;">Buscando suas informações...</div></div>';
-
-      // Exibir prévia se já existirem dados em cache no localStorage
+      
       const localDados = localStorage.getItem('usuario_dados');
-      if (localDados) {
-        renderizarDados(localDados);
-      }
-
-      try {
-        const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
-        const res = await fetch(url);
-        const text = await res.text();
-        if (text && text.trim().length > 0) {
-          localStorage.setItem('usuario_dados', text.trim());
-          renderizarDados(text.trim());
-        }
-      } catch (err) {
-        console.error('Erro ao buscar dados da matrícula:', err);
-        if (!localDados) {
-          bodyEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Não foi possível carregar os dados no momento. Tente novamente mais tarde.</div>';
-        }
+      if (localDados && localDados !== '[object Object]') {
+        renderizarListaMatriculas(localDados);
+      } else {
+        const bodyEl = document.getElementById('dadosModalContent');
+        bodyEl.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-weight:600;">Nenhuma matrícula encontrada localmente.</div>';
       }
     }
 
-    function renderizarDados(rawText) {
+    function renderizarListaMatriculas(rawText) {
       const bodyEl = document.getElementById('dadosModalContent');
-      if (!rawText || rawText === '[object Object]') {
-        bodyEl.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-weight:600;">Sem dados detalhados cadastrados.</div>';
-        return;
-      }
-
       let html = '';
-      
+
       try {
         let parsed = JSON.parse(rawText);
-        
         let itemObj = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
-        
-        if (itemObj && itemObj.matriculas && Array.isArray(itemObj.matriculas)) {
-          html += `<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#059669;display:flex;align-items:center;gap:6px;">
-            <i data-lucide="check-circle"></i> ${itemObj.matriculas.length} Matrícula(s) Encontrada(s)
+        let matriculas = itemObj.matriculas || (Array.isArray(parsed) ? parsed : [itemObj]);
+
+        if (Array.isArray(matriculas) && matriculas.length > 0) {
+          html += `<div style="margin-bottom:14px;font-size:13px;font-weight:700;color:#059669;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="users"></i> Selecione um aluno para ver a ficha completa:
           </div>`;
           
           html += '<div style="display:flex;flex-direction:column;gap:12px;">';
-          itemObj.matriculas.forEach((mat, idx) => {
-            html += `<div style="padding:16px;background:#f8fafc;border-radius:16px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
-              <div style="font-size:12px;font-weight:800;color:#10b981;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
-                <span>Matrícula #${mat.id || (idx + 1)}</span>
-                ${mat.status ? `<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:11px;">${mat.status}</span>` : ''}
+          matriculas.forEach((mat, idx) => {
+            const matId = mat.id || (idx + 1);
+            const nomeAluno = mat.aluno_nome || mat.nome || 'Aluno Cadastrado';
+
+            html += `<div style="padding:16px;background:#f8fafc;border-radius:16px;border:1.5px solid #e2e8f0;display:flex;flex-direction:column;gap:8px;transition:all 0.2s;">
+              <div style="display:flex;justify-content:space-between;align-items:center;">
+                <span style="font-size:11.5px;font-weight:800;color:#10b981;text-transform:uppercase;">Matrícula #${matId}</span>
+                <span style="font-size:11px;background:#ecfdf5;color:#047857;padding:3px 8px;border-radius:6px;font-weight:700;">Cadastrado</span>
               </div>
-              <div style="display:flex;flex-direction:column;gap:6px;">`;
+              <div style="font-size:16px;font-weight:800;color:#0f172a;">${sanitizeText(nomeAluno)}</div>
               
-              for (let k in mat) {
-                if (mat[k] && k !== 'id') {
-                  let label = k.replace(/_/g, ' ').toUpperCase();
-                  html += `<div style="font-size:13.5px;color:#1e293b;">
-                    <span style="font-weight:700;color:#64748b;font-size:12px;">${label}:</span> 
-                    <span style="font-weight:700;">${mat[k]}</span>
-                  </div>`;
-                }
-              }
-              
-            html += `</div></div>`;
+              <button type="button" class="al-btn al-btn-primary" style="margin-top:6px;padding:10px 16px;font-size:13px;border-radius:12px;width:100%;" onclick="carregarRespostasAluno('${matId}')">
+                <i data-lucide="eye"></i> Ver Ficha e Respostas
+              </button>
+            </div>`;
           });
-          html += '</div>';
-        } else if (Array.isArray(parsed)) {
-          html += '<div style="display:flex;flex-direction:column;gap:12px;">';
-          parsed.forEach((mat, idx) => {
-            html += `<div style="padding:14px;background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;">
-              <div style="font-size:12px;font-weight:800;color:#059669;margin-bottom:6px;">Registro #${idx + 1}</div>`;
-            if (typeof mat === 'object') {
-              for (let k in mat) {
-                if (mat[k]) {
-                  let label = k.replace(/_/g, ' ').toUpperCase();
-                  html += `<div style="font-size:13px;margin-bottom:4px;"><span style="color:#64748b;font-weight:700;">${label}:</span> <strong>${mat[k]}</strong></div>`;
-                }
-              }
-            } else {
-              html += `<div style="font-size:14px;font-weight:700;">${mat}</div>`;
-            }
-            html += `</div>`;
-          });
-          html += '</div>';
-        } else if (typeof parsed === 'object') {
-          html += '<div style="display:flex;flex-direction:column;gap:10px;">';
-          for (let key in parsed) {
-            if (parsed[key]) {
-              let labelKey = key.replace(/_/g, ' ').toUpperCase();
-              html += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-                <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
-                <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${typeof parsed[key] === 'object' ? JSON.stringify(parsed[key]) : parsed[key]}</span>
-              </div>`;
-            }
-          }
           html += '</div>';
         } else {
-          html = `<div style="padding:14px;background:#f8fafc;border-radius:12px;font-weight:700;color:#0f172a;">${sanitizeText(String(parsed))}</div>`;
+          html = '<div style="text-align:center;padding:20px;color:#64748b;">Nenhuma matrícula vinculada encontrada.</div>';
         }
       } catch(e) {
-        const formattedLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l && l !== '[object Object]');
-        if (formattedLines.length === 0) {
-          html = '<div style="text-align:center;padding:20px;color:#64748b;font-weight:600;">Nenhum dado cadastrado encontrado.</div>';
-        } else {
-          html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-          formattedLines.forEach(line => {
-            html += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
-          });
-          html += '</div>';
-        }
+        html = `<div style="padding:16px;background:#f8fafc;border-radius:14px;font-weight:700;color:#0f172a;">${sanitizeText(rawText)}</div>`;
       }
-      
+
       bodyEl.innerHTML = html;
       if (window.lucide) lucide.createIcons();
+    }
+
+    async function carregarRespostasAluno(matId) {
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const bodyEl = document.getElementById('dadosModalContent');
+      
+      bodyEl.innerHTML = `
+        <div style="text-align:center;padding:34px 16px;">
+          <div style="font-size:16px;font-weight:800;color:#059669;margin-bottom:8px;">Buscando ficha da Matrícula #${matId}...</div>
+          <div style="font-size:13px;color:#64748b;">Aguarde o carregamento das respostas.</div>
+        </div>
+      `;
+
+      try {
+        const url = `https://w.ibrase.com.br/webhook/buscarmatricula?id=${encodeURIComponent(matId)}&email=${encodeURIComponent(email)}`;
+        const res = await fetch(url);
+        const text = await res.text();
+        
+        let htmlContent = `
+          <div style="margin-bottom:14px;">
+            <button type="button" onclick="buscarEMostrarMatricula()" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:6px 12px;border-radius:10px;font-size:12.5px;font-weight:700;color:#475569;cursor:pointer;display:inline-flex;align-items:center;gap:4px;">
+              <i data-lucide="arrow-left"></i> Voltar às Matrículas
+            </button>
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#064e3b;margin-bottom:12px;">Ficha da Matrícula #${matId}</div>
+        `;
+
+        if (text && text.trim().length > 0) {
+          try {
+            const json = JSON.parse(text);
+            htmlContent += '<div style="display:flex;flex-direction:column;gap:10px;">';
+            for (let key in json) {
+              if (json[key]) {
+                let labelKey = key.replace(/_/g, ' ').toUpperCase();
+                htmlContent += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+                  <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
+                  <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${json[key]}</span>
+                </div>`;
+              }
+            }
+            htmlContent += '</div>';
+          } catch(e) {
+            const formattedLines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+            htmlContent += '<div style="display:flex;flex-direction:column;gap:8px;">';
+            formattedLines.forEach(line => {
+              htmlContent += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
+            });
+            htmlContent += '</div>';
+          }
+        } else {
+          htmlContent += '<div style="padding:20px;text-align:center;color:#64748b;">Nenhuma resposta encontrada para esta matrícula.</div>';
+        }
+
+        bodyEl.innerHTML = htmlContent;
+        if (window.lucide) lucide.createIcons();
+
+      } catch (err) {
+        console.error('Erro ao buscar respostas da matrícula:', err);
+        bodyEl.innerHTML = `
+          <div style="margin-bottom:14px;">
+            <button type="button" onclick="buscarEMostrarMatricula()" style="background:#f1f5f9;border:1px solid #cbd5e1;padding:6px 12px;border-radius:10px;font-size:12.5px;font-weight:700;color:#475569;cursor:pointer;">
+              ← Voltar às Matrículas
+            </button>
+          </div>
+          <div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Erro ao consultar webhook do servidor.</div>
+        `;
+      }
     }
 
     function logout() {
