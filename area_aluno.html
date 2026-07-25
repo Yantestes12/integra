@@ -300,18 +300,18 @@
         }
       }
 
-      // 2. Sempre fazer uma nova consulta atualizada no servidor ao carregar/recarregar a página
-      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const id = localStorage.getItem('usuario_id') || '';
+      // 2. Sempre fazer uma nova consulta atualizada no servidor (webhook loginaluno) ao carregar/recarregar a página
+      const username = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const password = localStorage.getItem('usuario_senha') || '';
 
-      if (email) {
+      if (username) {
         try {
-          const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
+          const url = `https://w.ibrase.com.br/webhook/loginaluno?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
           const res = await fetch(url);
           const text = await res.text();
           const clean = text.trim();
 
-          if (clean && clean !== '[object Object]') {
+          if (clean && clean.toLowerCase().includes('login aprovado')) {
             const parsed = extrairJSON(clean);
             const list = obterListaDeMatriculas(parsed);
             if (list && list.length > 0) {
@@ -322,7 +322,7 @@
           }
           btnConsultar.style.display = 'none';
         } catch (err) {
-          console.error('Erro ao atualizar matrículas do servidor:', err);
+          console.error('Erro ao atualizar matrículas do loginaluno:', err);
         }
       }
     }
@@ -351,23 +351,24 @@
         </div>
       `;
 
-      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const id = localStorage.getItem('usuario_id') || '';
+      const username = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const password = localStorage.getItem('usuario_senha') || '';
 
       try {
-        const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
+        const url = `https://w.ibrase.com.br/webhook/loginaluno?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
         const res = await fetch(url);
         const text = await res.text();
         const clean = text.trim();
-        if (clean && clean !== '[object Object]') {
+
+        if (clean && clean.toLowerCase().includes('login aprovado')) {
           localStorage.setItem('usuario_dados', clean);
           renderizarListaMatriculas(clean);
         } else {
           bodyEl.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-weight:600;">Nenhuma matrícula encontrada para este perfil.</div>';
         }
       } catch (err) {
-        console.error('Erro ao buscar matrículas:', err);
-        bodyEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Erro ao consultar matrículas no servidor.</div>';
+        console.error('Erro ao buscar matrículas no loginaluno:', err);
+        bodyEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Erro ao consultar webhook do servidor.</div>';
       }
     }
 
