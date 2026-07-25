@@ -3114,6 +3114,9 @@
                 fd.append(key, val);
             }
         }
+        // Gerar um Token de Validação único para cada matrícula (evitando duplicidades)
+        var valToken = 'VAL-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substring(2, 9).toUpperCase();
+        fd.append('validation_token', valToken);
         var btn  = form.querySelector('.btn-submit-final');
         var btnNav = document.getElementById('btnSubmit');
         if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }

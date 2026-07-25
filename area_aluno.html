@@ -474,10 +474,11 @@
           try {
             let parsed = extrairJSON(text) || JSON.parse(text);
             let item = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+            currentMatriculaItem = item;
 
             const EXCLUDED_KEYS = [
-              'email_conta', 'telefone_conta', 'validation_token', 'portal_usuario_id',
-              'projeto_id', 'cidade_id', 'bairro_id', 'modalidade_id', 'nucleo_id',
+              'id', 'projeto_id', 'cidade_id', 'bairro_id', 'modalidade_id', 'nucleo_id',
+              'portal_usuario_id', 'email_conta', 'telefone_conta', 'validation_token',
               'lgpd_aceite', 'lgpd_aceite_em', 'lgpd_versao', 'aceite_veracidade',
               'aceite_veracidade_em', 'aceite_veracidade_versao', 'chk_usar_nome_social',
               'documentos_urls', 'rede_social_tipo', 'rede_social_link', 'instagram',
@@ -485,7 +486,6 @@
             ];
 
             const LABELS_MAP = {
-              id: "Matrícula ID",
               created_at: "Data do Cadastro",
               status: "Status",
               origem_cadastro: "Origem do Cadastro",
@@ -541,7 +541,12 @@
               deseja_laudo: "Anexou Laudo / Documento"
             };
 
-            htmlContent += '<div style="display:flex;flex-direction:column;gap:8px;">';
+            htmlContent += `
+              <button type="button" class="al-btn al-btn-primary" style="background:#059669;color:#fff;width:100%;padding:12px;font-size:14px;border-radius:12px;margin-bottom:14px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(5,150,105,0.2);" onclick="baixarComprovanteInscricao()">
+                <i data-lucide="download"></i> Baixar Comprovante de Inscrição
+              </button>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+            `;
             
             let countValid = 0;
             for (let key in item) {
@@ -555,7 +560,6 @@
               let labelKey = LABELS_MAP[key] || key.replace(/_/g, ' ').toUpperCase();
               let displayVal = val;
 
-              // Formatação amigável para data de nascimento
               if ((key === 'data_nascimento' || key === 'resp_data_nasc') && typeof val === 'string' && val.includes('-')) {
                 const parts = val.split('-');
                 if (parts.length === 3) displayVal = `${parts[2]}/${parts[1]}/${parts[0]}`;
@@ -573,7 +577,12 @@
               htmlContent += '<div style="padding:20px;text-align:center;color:#64748b;">Nenhuma informação adicional encontrada.</div>';
             }
 
-            htmlContent += '</div>';
+            htmlContent += `
+              </div>
+              <button type="button" class="al-btn al-btn-primary" style="background:#059669;color:#fff;width:100%;padding:12px;font-size:14px;border-radius:12px;margin-top:14px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(5,150,105,0.2);" onclick="baixarComprovanteInscricao()">
+                <i data-lucide="download"></i> Baixar Comprovante de Inscrição
+              </button>
+            `;
           } catch(e) {
             const formattedLines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && l !== '[object Object]');
             htmlContent += '<div style="display:flex;flex-direction:column;gap:8px;">';
@@ -605,6 +614,116 @@
     function logout() {
       localStorage.clear();
       window.location.href = 'login.html';
+    }
+
+    function baixarComprovanteInscricao() {
+      if (!currentMatriculaItem) return;
+      const mat = currentMatriculaItem;
+      const valToken = mat.validation_token || ('VAL-' + (mat.id || '4186') + '-' + Date.now().toString(36).toUpperCase());
+
+      const printWin = window.open('', '_blank');
+      if (!printWin) {
+        alert('Por favor, permita pop-ups no seu navegador para baixar o comprovante.');
+        return;
+      }
+
+      const printDoc = printWin.document;
+
+      printDoc.write(`
+        <!DOCTYPE html>
+        <html lang="pt-BR">
+        <head>
+          <meta charset="UTF-8">
+          <title>Comprovante de Inscrição - Matrícula #${mat.id || ''}</title>
+          <style>
+            @page { size: A4; margin: 12mm; }
+            body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #0f172a; line-height: 1.4; padding: 15px; background: #fff; }
+            .no-print { text-align: right; margin-bottom: 15px; }
+            .btn-print { background: #059669; color: #ffffff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
+            .header-title { text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 6px; color: #0f172a; font-weight: 800; letter-spacing: 0.5px; }
+            .header-meta { text-align: center; font-weight: 700; font-size: 11px; margin-bottom: 16px; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; }
+            .section-box { border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #fff; }
+            .section-title { font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 8px; color: #059669; border-bottom: 1.5px solid #ecfdf5; padding-bottom: 4px; letter-spacing: 0.5px; }
+            .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+            .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+            .row { margin-bottom: 4px; }
+            .label { font-weight: 700; color: #64748b; font-size: 10.5px; text-transform: uppercase; }
+            .val { font-weight: 700; color: #0f172a; }
+            .qr-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 18px; padding: 16px; border: 2px dashed #059669; border-radius: 14px; background: #f0fdf4; text-align: center; }
+            .qr-code img { width: 140px; height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; padding: 6px; }
+            .qr-token { font-family: monospace; font-size: 12px; font-weight: 800; margin-top: 8px; color: #047857; letter-spacing: 1px; }
+            @media print {
+              .no-print { display: none !important; }
+              body { padding: 0; }
+            }
+          </style>
+        </head>
+        <body>
+          <div class="no-print">
+            <button type="button" class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar em PDF</button>
+          </div>
+
+          <div class="header-title">FICHA CADASTRAL DE MATRÍCULA</div>
+          <div class="header-meta">
+            Matrícula Nº: ${mat.id || '---'} &nbsp;|&nbsp; Projeto: ${mat.projeto_nome || 'GASCTPNA'} &nbsp;|&nbsp; Turno: ${mat.turno || '---'} &nbsp;|&nbsp; Data: ${mat.created_at ? new Date(mat.created_at).toLocaleDateString('pt-BR') : new Date().toLocaleDateString('pt-BR')}
+          </div>
+
+          <div class="section-box">
+            <div class="section-title">1. DADOS DO ALUNO(A)</div>
+            <div class="row"><span class="label">Nome completo:</span> <span class="val" style="font-size:13px;">${mat.aluno_nome || '---'}</span></div>
+            <div class="grid-3" style="margin-top:6px;">
+              <div><span class="label">CPF:</span> <span class="val">${mat.aluno_cpf || '---'}</span></div>
+              <div><span class="label">Data de Nasc.:</span> <span class="val">${mat.data_nascimento || '---'}</span></div>
+              <div><span class="label">Idade:</span> <span class="val">${mat.idade || '---'}</span></div>
+              <div><span class="label">Sexo:</span> <span class="val">${mat.sexo || '---'}</span></div>
+              <div><span class="label">Raça:</span> <span class="val">${mat.raca || '---'}</span></div>
+              <div><span class="label">Escolaridade:</span> <span class="val">${mat.escolaridade || '---'}</span></div>
+            </div>
+            <div class="grid-2" style="margin-top:6px;">
+              <div><span class="label">Telefone:</span> <span class="val">${mat.whatsapp || '---'}</span></div>
+              <div><span class="label">E-mail:</span> <span class="val">${mat.email || '---'}</span></div>
+              <div><span class="label">Endereço:</span> <span class="val">${mat.endereco || ''}, Nº ${mat.numero || ''} ${mat.complemento || ''}</span></div>
+              <div><span class="label">Cidade/UF:</span> <span class="val">${mat.cidade || '---'} / ${mat.uf || 'RJ'} - CEP ${mat.cep || ''}</span></div>
+            </div>
+            <div class="grid-3" style="margin-top:8px;background:#f8fafc;padding:8px;border-radius:8px;">
+              <div><span class="label">Camiseta:</span> <span class="val">${mat.tamanho_camisa || '---'}</span></div>
+              <div><span class="label">Bermuda/Calça:</span> <span class="val">${mat.tamanho_calca || '---'}</span></div>
+              <div><span class="label">Calçado:</span> <span class="val">${mat.tamanho_calcado || '---'}</span></div>
+              <div><span class="label">Altura:</span> <span class="val">${mat.altura ? mat.altura + ' cm' : '---'}</span></div>
+              <div><span class="label">Peso:</span> <span class="val">${mat.peso ? mat.peso + ' kg' : '---'}</span></div>
+            </div>
+          </div>
+
+          ${mat.resp_nome ? `
+          <div class="section-box">
+            <div class="section-title">2. DADOS DO RESPONSÁVEL DO ALUNO(A)</div>
+            <div class="row"><span class="label">Nome completo:</span> <span class="val">${mat.resp_nome}</span></div>
+            <div class="grid-3" style="margin-top:4px;">
+              <div><span class="label">CPF:</span> <span class="val">${mat.resp_cpf || '---'}</span></div>
+              <div><span class="label">Telefone:</span> <span class="val">${mat.resp_whatsapp || '---'}</span></div>
+              <div><span class="label">E-mail:</span> <span class="val">${mat.resp_email || '---'}</span></div>
+            </div>
+          </div>
+          ` : ''}
+
+          <div class="section-box">
+            <div class="section-title">DECLARAÇÃO DE RESPONSABILIDADE</div>
+            <p style="font-size:10px;color:#475569;margin:0;">
+              Perante a integral gratuidade desse serviço, confirmo e declaro ter ciência e aceite dos termos de participação, compromisso e veracidade das informações prestadas nesta matrícula.
+            </p>
+          </div>
+
+          <div class="qr-container">
+            <div style="font-size:12px;font-weight:bold;color:#0f172a;margin-bottom:8px;text-transform:uppercase;">Comprovante de Autenticidade Digital</div>
+            <div class="qr-code">
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(valToken)}" alt="QR Code Validation Token" />
+            </div>
+            <div class="qr-token">VALIDATION TOKEN: ${valToken}</div>
+          </div>
+        </body>
+        </html>
+      `);
+      printDoc.close();
     }
   </script>
 </body>
