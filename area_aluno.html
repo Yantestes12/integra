@@ -286,21 +286,47 @@
       }
     }
 
-    function verificarSePossuiMatricula() {
+    async function verificarSePossuiMatricula() {
       const btnConsultar = document.getElementById('btn-consultar-matriculas');
       if (!btnConsultar) return;
 
+      // 1. Exibir de imediato se já houver cache local válido
       const localDados = localStorage.getItem('usuario_dados');
       if (localDados && localDados !== '[object Object]') {
         const parsed = extrairJSON(localDados);
         const list = obterListaDeMatriculas(parsed);
         if (list && list.length > 0) {
           btnConsultar.style.display = 'inline-flex';
-          return;
         }
       }
 
-      btnConsultar.style.display = 'none';
+      // 2. Sempre fazer uma nova consulta atualizada no servidor ao carregar/recarregar a página
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const id = localStorage.getItem('usuario_id') || '';
+
+      if (email) {
+        try {
+          const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
+          const res = await fetch(url);
+          const text = await res.text();
+          const clean = text.trim();
+
+          if (clean && clean !== '[object Object]' && !clean.includes('sem_email')) {
+            const parsed = extrairJSON(clean);
+            const list = obterListaDeMatriculas(parsed);
+            if (list && list.length > 0) {
+              localStorage.setItem('usuario_dados', clean);
+              btnConsultar.style.display = 'inline-flex';
+              return;
+            }
+          }
+          // Se o servidor retornou sem matrículas válidas
+          localStorage.removeItem('usuario_dados');
+          btnConsultar.style.display = 'none';
+        } catch (err) {
+          console.error('Erro ao atualizar matrículas do servidor:', err);
+        }
+      }
     }
 
     verificarSePossuiMatricula();
