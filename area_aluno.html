@@ -1,282 +1,255 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Área do Participante - GASCTPNA</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
+  <meta charset="UTF-8">
+  <title>Área do Participante — GASCTPNA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-    <style>
-        :root {
-            --primary: #059669;
-            --primary-hover: #047857;
-            --bg-page: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --border: #e2e8f0;
-            --font-main: 'Plus Jakarta Sans', system-ui, sans-serif;
-        }
+  <style>
+    :root{
+      --ib-blue:#10b981;
+      --ib-blue-dark:#059669;
+      --ib-blue-soft:#ecfdf5;
+      --ib-navy:#064e3b;
+      --ib-text:#1e293b;
+      --ib-muted:#64748b;
+      --ib-bg:#f8fafc;
+      --ib-line:#e2e8f0;
+      --ib-shadow:0 10px 30px rgba(6,78,59,.04);
+      --ib-font: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body{
+      font-family:var(--ib-font);
+      background:
+        radial-gradient(circle at top left, rgba(16,185,129,.06), transparent 28%),
+        linear-gradient(180deg, #f9fbff 0%, var(--ib-bg) 100%);
+      color:var(--ib-text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
 
-        *, *::before, *::after {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+    .al-main{max-width:1200px; width:100%; margin:0 auto; padding:28px 24px 34px; flex:1}
 
-        body {
-            font-family: var(--font-main);
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            min-height: 100vh;
-        }
+    /* ── Conteúdo ── */
+    .al-ui-clean, .al-ui-clean * { font-family: Inter, Arial, Helvetica, sans-serif; }
+    .al-ui-clean { color: #0f172a; }
+    .al-ui-clean .al-section { margin-top: 34px; }
+    .al-ui-clean .al-section-title {
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 32px; font-weight: 900; letter-spacing: -.03em; color: #064e3b;
+    }
+    .al-ui-clean .al-card {
+      border-radius: 24px; background: #fff; border: 1px solid #e2e8f0;
+      box-shadow: 0 12px 30px rgba(6,78,59,.03);
+    }
+    .al-ui-clean .al-empty { text-align: center; padding: 50px 20px; }
+    .al-ui-clean .al-empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.8; }
+    .al-ui-clean .al-empty p { color: #64748b; font-size: 16px; font-weight: 500; margin-bottom: 24px; }
+    .al-ui-clean .al-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 32px; border-radius: 16px; font-weight: 800; text-decoration: none;
+      cursor: pointer; transition: all .2s ease-in-out; font-size: 15px;
+    }
+    .al-ui-clean .al-btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); }
+    .al-ui-clean .al-btn-primary:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
+    .al-ui-clean .al-intro { margin-bottom: 22px; }
+    .al-ui-clean .al-intro h2 { font-size: 26px; font-weight: 900; color: #064e3b; margin: 0 0 6px; letter-spacing: -.02em; }
+    .al-ui-clean .al-intro p { font-size: 15px; color: #64748b; margin: 0; }
+    
+    footer.al-footer{ text-align:center; padding:20px; font-size:12px; color:var(--ib-muted); }
 
-        .navbar {
-            background: #ffffff;
-            border-bottom: 1px solid var(--border);
-            padding: 16px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
+    /* Topbar Estilos Isolados */
+    .al-topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,.94); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(16,185,129,.15); padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between; gap: 16px;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    .al-topbar-left, .al-topbar-right { display: flex; align-items: center; gap: 14px; }
+    .al-brand { display: flex; align-items: center; gap: 14px; text-decoration: none; color: inherit; }
+    .al-topbar-logo img {
+      height: 38px;
+      display: block;
+      filter: drop-shadow(0 2px 5px rgba(249, 115, 22, 0.15));
+      animation: logoGlowPulseSmall 8s ease-in-out infinite;
+    }
+    @keyframes logoGlowPulseSmall {
+      0%, 100% { filter: drop-shadow(0 2px 5px rgba(249, 115, 22, 0.2)); }
+      50% { filter: drop-shadow(0 2px 8px rgba(16, 185, 129, 0.4)); }
+    }
+    .al-brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      background: linear-gradient(120deg, #f97316 0%, #eab308 25%, #10b981 50%, #06b6d4 75%, #f97316 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shineGradient 5s linear infinite;
+    }
+    @keyframes shineGradient {
+      0% { background-position: 0% center; }
+      100% { background-position: 200% center; }
+    }
+    .al-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #10b981, #059669); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 15px; font-weight: 800; overflow: hidden;
+      box-shadow: 0 6px 14px rgba(16,185,129,.18); border: 2px solid #fff;
+    }
+    .al-avatar-clickable { cursor: pointer; transition: transform .15s ease, box-shadow .15s ease; }
+    .al-avatar-clickable:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(16,185,129,.24); }
+    .al-user-info { display: flex; flex-direction: column; gap: 2px; align-items: flex-end; }
+    .al-user-name { font-size: 13px; font-weight: 800; color: #064e3b; line-height: 1.2; }
+    .al-user-role { font-size: 11px; color: #64748b; font-weight: 700; line-height: 1.2; }
+    .al-topbar-logout {
+      text-decoration: none; border: 1px solid #dbe3ef; background: #fff; color: #475569;
+      padding: 9px 14px; border-radius: 12px; font-size: 12px; font-weight: 800;
+      cursor: pointer; transition: all .15s ease;
+    }
+    .al-topbar-logout:hover { border-color: #a7f3d0; background: #ecfdf5; color: #10b981; }
 
-        .navbar-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .navbar-brand img {
-            max-height: 42px;
-            width: auto;
-        }
-
-        .user-menu {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .user-email-badge {
-            font-size: 13.5px;
-            font-weight: 700;
-            color: var(--primary);
-            background: #ecfdf5;
-            padding: 6px 12px;
-            border-radius: 20px;
-        }
-
-        .btn-logout {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-            padding: 8px 14px;
-            border-radius: 8px;
-            font-size: 13.5px;
-            font-weight: 600;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: all 0.2s;
-        }
-
-        .btn-logout:hover {
-            background: #f1f5f9;
-            color: #dc2626;
-        }
-
-        .main-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 16px;
-        }
-
-        .welcome-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-            margin-bottom: 24px;
-        }
-
-        .welcome-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--text-main);
-            margin-bottom: 8px;
-        }
-
-        .welcome-desc {
-            font-size: 15px;
-            color: var(--text-muted);
-            line-height: 1.6;
-            margin-bottom: 24px;
-        }
-
-        .action-banner {
-            background: linear-gradient(135deg, #059669 0%, #047857 100%);
-            border-radius: 16px;
-            padding: 28px;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25);
-        }
-
-        .action-text h2 {
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 6px;
-        }
-
-        .action-text p {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .btn-matricular {
-            background: #ffffff;
-            color: #047857;
-            border: none;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 800;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            white-space: nowrap;
-        }
-
-        .btn-matricular:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .grid-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 20px;
-        }
-
-        .info-card {
-            background: #ffffff;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 24px;
-        }
-
-        .info-card-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .info-icon {
-            width: 40px;
-            height: 40px;
-            background: #ecfdf5;
-            color: var(--primary);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .info-card-title {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .info-card-desc {
-            font-size: 14px;
-            color: var(--text-muted);
-            line-height: 1.5;
-        }
-    </style>
+    /* Modal de avatar */
+    .al-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .al-modal { background: #fff; width: 100%; max-width: 420px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); font-family: Inter, Arial, sans-serif; }
+    .al-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 18px; color: #064e3b; }
+    .al-modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; padding: 0; }
+    .al-upload-area { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 30px 20px; text-align: center; background: #f8fafc; }
+    .al-btn-tb { display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); }
+    .al-btn-tb:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
+    @media (max-width: 768px) { .al-topbar { padding: 12px 16px; } .al-main{padding:20px 16px 28px} }
+  </style>
 </head>
 <body>
-    <header class="navbar">
-        <div class="navbar-brand">
-            <img src="http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png" alt="INTEGRA">
-            <span style="font-weight: 800; font-size: 16px; color: var(--primary);">Área do Participante</span>
+
+  <div class="al-topbar">
+    <div class="al-topbar-left">
+      <a href="area_aluno.html" class="al-brand">
+        <span class="al-topbar-logo">
+          <img src="logo_integra.png" onerror="this.onerror=null; this.src='http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png';" alt="INTEGRA">
+        </span>
+        <span class="al-brand-title">INTEGRA</span>
+      </a>
+    </div>
+    <div class="al-topbar-right">
+      <div class="al-user-info">
+        <div class="al-user-name" id="display-topbar-name">Participante</div>
+        <div class="al-user-role">Painel do Aluno</div>
+      </div>
+      <div class="al-avatar al-avatar-clickable" id="display-avatar-icon" onclick="openAvatarModal()" title="Adicionar foto">P</div>
+      <button type="button" class="al-topbar-logout" onclick="logout()">Sair</button>
+    </div>
+  </div>
+
+  <div class="al-modal-overlay" id="avatarModalOverlay" onclick="closeAvatarModal()" style="display:none">
+    <div class="al-modal" onclick="event.stopPropagation()">
+      <div class="al-modal-header">
+        <strong>Foto de Perfil</strong>
+        <button type="button" class="al-modal-close" onclick="closeAvatarModal()">×</button>
+      </div>
+      <div class="al-modal-body">
+        <form onsubmit="salvarAvatar(event)">
+          <div class="al-upload-area">
+            <p style="font-weight:700;color:#0f1a3e;margin-bottom:8px">Selecione uma foto</p>
+            <input type="file" id="inputAvatarFile" accept="image/jpeg,image/png,image/webp" style="width: 100%;">
+            <div style="font-size:11px;color:#64748b;margin-top:10px">JPG, PNG ou WEBP. Máximo 2MB.</div>
+          </div>
+          <div style="text-align:center;margin-top:20px">
+            <button type="submit" class="al-btn-tb">Salvar Foto</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <main class="al-main">
+    <div class="al-ui-clean">
+
+      <div class="al-intro">
+        <h2 id="display-welcome-title">Olá, Participante!</h2>
+        <p>Bem-vindo(a) ao seu Painel do Aluno.</p>
+      </div>
+
+      <div class="al-section">
+        <div class="al-section-title">Minha Matrícula</div>
+        <div class="al-card">
+          <div class="al-empty">
+            <div class="al-empty-icon">🎓</div>
+            <p>A matrícula é para se tornar aluno(a) de um projeto.</p>
+            <a href="matricula.html" class="al-btn al-btn-primary">Fazer minha matrícula</a>
+          </div>
         </div>
-        <div class="user-menu">
-            <span class="user-email-badge" id="display-user-email">aluno@gasctpna.com.br</span>
-            <button type="button" class="btn-logout" onclick="logout()">
-                <i data-lucide="log-out"></i> Sair
-            </button>
-        </div>
-    </header>
+      </div>
 
-    <main class="main-container">
-        <div class="welcome-card">
-            <h1 class="welcome-title" id="display-welcome-title">Bem-vindo(a) ao Portal GASCTPNA! 👋</h1>
-            <p class="welcome-desc">
-                Sua conta de participante está ativa. Aqui você pode realizar e acompanhar suas matrículas nos projetos esportivos e culturais oferecidos.
-            </p>
+    </div>
+  </main>
 
-            <div class="action-banner">
-                <div class="action-text">
-                    <h2>Nova Matrícula em Projetos</h2>
-                    <p>Preencha a ficha de matrícula online para garantir sua vaga nas turmas e modalidades disponíveis.</p>
-                </div>
-                <a href="matricula.html" class="btn-matricular">
-                    <i data-lucide="file-plus"></i> Fazer Minha Matrícula
-                </a>
-            </div>
-        </div>
+  <footer class="al-footer">
+    Grupo de Apoio Social aos Cultivadores da Terra e Prevenção da Natureza - GASCTPNA
+  </footer>
 
-        <div class="grid-info">
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-icon"><i data-lucide="info"></i></div>
-                    <div class="info-card-title">Documentação</div>
-                </div>
-                <div class="info-card-desc">
-                    Caso possua laudo médico ou comprovantes, você poderá anexar os documentos diretamente durante o preenchimento da matrícula.
-                </div>
-            </div>
+  <script>
+    function openAvatarModal()  { document.getElementById('avatarModalOverlay').style.display = 'flex'; }
+    function closeAvatarModal() { document.getElementById('avatarModalOverlay').style.display = 'none'; }
 
-            <div class="info-card">
-                <div class="info-card-header">
-                    <div class="info-icon"><i data-lucide="shield-check"></i></div>
-                    <div class="info-card-title">Privacidade LGPD</div>
-                </div>
-                <div class="info-card-desc">
-                    Seus dados pessoais são protegidos pela Lei Geral de Proteção de Dados e utilizados exclusivamente para os projetos da instituição.
-                </div>
-            </div>
-        </div>
-    </main>
+    function sanitizeText(str) {
+      if (!str) return '';
+      const temp = document.createElement('div');
+      temp.textContent = str;
+      return temp.innerHTML;
+    }
 
-    <script>
-        lucide.createIcons();
+    const userName = localStorage.getItem('usuario_nome') || '';
+    const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
 
-        const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || 'participante@gasctpna.com.br';
-        const userName = localStorage.getItem('usuario_nome') || '';
+    let displayName = userName.trim() || userEmail.split('@')[0] || 'Participante';
+    displayName = sanitizeText(displayName);
 
-        document.getElementById('display-user-email').textContent = userEmail;
-        if (userName) {
-            document.getElementById('display-welcome-title').textContent = `Bem-vindo(a), ${userName}! 👋`;
-        }
+    document.getElementById('display-topbar-name').textContent = displayName;
+    document.getElementById('display-welcome-title').textContent = `Olá, ${displayName}!`;
 
-        function logout() {
-            localStorage.removeItem('usuario_email');
-            localStorage.removeItem('usuario_nome');
-            localStorage.removeItem('email_conta');
-            window.location.href = 'login.html';
-        }
-    </script>
+    const firstLetter = displayName.charAt(0).toUpperCase() || 'P';
+    const avatarEl = document.getElementById('display-avatar-icon');
+    
+    // Verificar se existe foto salva no localStorage
+    const savedAvatar = localStorage.getItem('avatar_base64');
+    if (savedAvatar) {
+      avatarEl.innerHTML = `<img src="${savedAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+    } else {
+      avatarEl.textContent = firstLetter;
+    }
+
+    function salvarAvatar(e) {
+      e.preventDefault();
+      const input = document.getElementById('inputAvatarFile');
+      if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          localStorage.setItem('avatar_base64', evt.target.result);
+          avatarEl.innerHTML = `<img src="${evt.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+          closeAvatarModal();
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        closeAvatarModal();
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('usuario_email');
+      localStorage.removeItem('usuario_nome');
+      localStorage.removeItem('email_conta');
+      window.location.href = 'login.html';
+    }
+  </script>
 </body>
 </html>
