@@ -290,27 +290,52 @@
       const btnConsultar = document.getElementById('btn-consultar-matriculas');
       if (!btnConsultar) return;
 
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
       const localId = localStorage.getItem('usuario_id');
       const localDados = localStorage.getItem('usuario_dados');
 
-      // Se possui ID ou dados de matrícula salvos localmente pelo login
-      if ((localId && localId.trim().length > 0) || (localDados && localDados.trim().length > 0 && localDados !== '[object Object]')) {
+      if (email || localId || (localDados && localDados !== '[object Object]')) {
         btnConsultar.style.display = 'inline-flex';
       }
     }
 
     verificarSePossuiMatricula();
 
-    function buscarEMostrarMatricula() {
+    async function buscarEMostrarMatricula() {
       const modal = document.getElementById('dadosModalOverlay');
+      const bodyEl = document.getElementById('dadosModalContent');
       modal.style.display = 'flex';
       
       const localDados = localStorage.getItem('usuario_dados');
-      if (localDados && localDados !== '[object Object]') {
+      if (localDados && localDados !== '[object Object]' && localDados.trim().length > 0) {
         renderizarListaMatriculas(localDados);
-      } else {
-        const bodyEl = document.getElementById('dadosModalContent');
-        bodyEl.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-weight:600;">Nenhuma matrícula encontrada localmente.</div>';
+        return;
+      }
+
+      bodyEl.innerHTML = `
+        <div style="text-align:center;padding:34px 16px;">
+          <div style="font-size:16px;font-weight:800;color:#059669;margin-bottom:8px;">Buscando suas matrículas...</div>
+          <div style="font-size:13px;color:#64748b;">Aguarde enquanto carregamos seus dados.</div>
+        </div>
+      `;
+
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const id = localStorage.getItem('usuario_id') || '';
+
+      try {
+        const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
+        const res = await fetch(url);
+        const text = await res.text();
+        const clean = text.trim();
+        if (clean && clean !== '[object Object]') {
+          localStorage.setItem('usuario_dados', clean);
+          renderizarListaMatriculas(clean);
+        } else {
+          bodyEl.innerHTML = '<div style="text-align:center;padding:24px;color:#64748b;font-weight:600;">Nenhuma matrícula encontrada para este perfil.</div>';
+        }
+      } catch (err) {
+        console.error('Erro ao buscar matrículas:', err);
+        bodyEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Erro ao consultar matrículas no servidor.</div>';
       }
     }
 
