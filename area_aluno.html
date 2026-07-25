@@ -339,14 +339,69 @@
       }
     }
 
+    function extrairJSON(text) {
+      if (!text) return null;
+      try { return JSON.parse(text); } catch(e) {}
+
+      const startBracket = text.indexOf('[');
+      const startBrace = text.indexOf('{');
+      let startIdx = -1;
+      if (startBracket !== -1 && startBrace !== -1) startIdx = Math.min(startBracket, startBrace);
+      else if (startBracket !== -1) startIdx = startBracket;
+      else if (startBrace !== -1) startIdx = startBrace;
+
+      if (startIdx !== -1) {
+        const jsonSub = text.substring(startIdx).trim();
+        try { return JSON.parse(jsonSub); } catch(e) {
+          const lastBracket = jsonSub.lastIndexOf(']');
+          const lastBrace = jsonSub.lastIndexOf('}');
+          const endIdx = Math.max(lastBracket, lastBrace);
+          if (endIdx !== -1) {
+            try { return JSON.parse(jsonSub.substring(0, endIdx + 1)); } catch(e2) {}
+          }
+        }
+      }
+      return null;
+    }
+
+    function obterListaDeMatriculas(parsed) {
+      if (!parsed) return [];
+      let result = [];
+      
+      if (Array.isArray(parsed)) {
+        parsed.forEach(item => {
+          if (item && item.matriculas && Array.isArray(item.matriculas)) {
+            result.push(...item.matriculas);
+          } else if (item && typeof item === 'object') {
+            if (item.id || item.aluno_nome || item.nome_aluno || item.nome) {
+              result.push(item);
+            }
+          }
+        });
+      } else if (typeof parsed === 'object') {
+        if (parsed.matriculas && Array.isArray(parsed.matriculas)) {
+          result.push(...parsed.matriculas);
+        } else {
+          result.push(parsed);
+        }
+      }
+
+      if (result.length === 0 && Array.isArray(parsed)) {
+        result = parsed;
+      }
+
+      return result;
+    }
+
     function renderizarListaMatriculas(rawText) {
       const bodyEl = document.getElementById('dadosModalContent');
       let html = '';
 
       try {
-        let parsed = JSON.parse(rawText);
-        let itemObj = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
-        let matriculas = itemObj.matriculas || (Array.isArray(parsed) ? parsed : [itemObj]);
+        let parsed = extrairJSON(rawText);
+        if (!parsed) throw new Error('JSON não pôde ser isolado.');
+
+        let matriculas = obterListaDeMatriculas(parsed);
 
         if (Array.isArray(matriculas) && matriculas.length > 0) {
           // Ordenar pelo ID mais alto no topo (matrícula mais recente primeiro)
@@ -359,7 +414,7 @@
           html += '<div style="display:flex;flex-direction:column;gap:10px;">';
           matriculas.forEach((mat, idx) => {
             const matId = mat.id || (idx + 1);
-            const nomeAluno = mat.aluno_nome || mat.nome || 'Aluno Cadastrado';
+            const nomeAluno = mat.aluno_nome || mat.nome_aluno || mat.nome || mat.name || 'Aluno Cadastrado';
 
             html += `<div style="padding:14px 16px;background:#f8fafc;border-radius:16px;border:1.5px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 2px 6px rgba(0,0,0,0.02);">
               <div style="display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;">
@@ -382,6 +437,7 @@
           html = '<div style="text-align:center;padding:20px;color:#64748b;">Nenhuma matrícula vinculada encontrada.</div>';
         }
       } catch(e) {
+        console.error('Erro ao renderizar lista de matrículas:', e);
         html = `<div style="padding:16px;background:#f8fafc;border-radius:14px;font-weight:700;color:#0f172a;">${sanitizeText(rawText)}</div>`;
       }
 

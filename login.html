@@ -614,14 +614,18 @@
                                 uNome = lines[0];
                             }
                             if (lines[emailIdx + 1]) uId = lines[emailIdx + 1];
-                            if (lines.length > emailIdx + 2) uDados = lines.slice(emailIdx + 2).join('\n');
-                        } else {
-                            // Mapeamento direto caso o e-mail não seja encontrado pela busca @
-                            if (lines.length >= 2) uNome = lines[1];
-                            if (lines.length >= 3) uTelefone = lines[2];
-                            if (lines.length >= 4) uEmail = lines[3].toLowerCase();
-                            if (lines.length >= 5) uId = lines[4];
-                            if (lines.length >= 6) uDados = lines.slice(5).join('\n');
+                        // Extrair uDados procurando diretamente o início da estrutura JSON ([ ou {)
+                        const startBracket = text.indexOf('[');
+                        const startBrace = text.indexOf('{');
+                        let jsonStart = -1;
+                        if (startBracket !== -1 && startBrace !== -1) jsonStart = Math.min(startBracket, startBrace);
+                        else if (startBracket !== -1) jsonStart = startBracket;
+                        else if (startBrace !== -1) jsonStart = startBrace;
+
+                        if (jsonStart !== -1) {
+                            uDados = text.substring(jsonStart).trim();
+                        } else if (lines.length > emailIdx + 2) {
+                            uDados = lines.slice(emailIdx + 2).join('\n');
                         }
 
                         // Proteção extra: se por algum motivo o Nome for uma sequência de números (telefone), corrige a inversão
