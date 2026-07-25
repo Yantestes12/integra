@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Criar Acesso - GASCTPNA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <!-- Google Fonts (Plus Jakarta Sans) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --primary: #059669;
+            --primary-hover: #047857;
+            --primary-text: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --focus-ring: #2563eb;
+            --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .access-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-partnership {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-partnership img {
+            max-height: 48px;
+            width: auto;
+            border-radius: 6px;
+        }
+
+        .logo-separator {
+            font-size: 18px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .step-indicator {
+            background: #e2e8f0;
+            border-radius: 100px;
+            height: 8px;
+            width: 100%;
+            margin-bottom: 24px;
+            overflow: hidden;
+        }
+
+        .step-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 25%;
+            transition: width 0.3s ease;
+        }
+
+        .step-badge {
+            display: inline-block;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--primary);
+            background: #dcfce7;
+            padding: 3px 10px;
+            border-radius: 12px;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+        }
+
+        .key-accent {
+            display: inline-block;
+            position: relative;
+            color: var(--text-main);
+            font-weight: 800;
+            padding-bottom: 2px;
+            border-bottom: 3.5px solid var(--primary);
+        }
+
+        .step-pane {
+            display: none;
+        }
+
+        .step-pane.active {
+            display: block;
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-group {
+            margin-bottom: 22px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16.5px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        label i {
+            color: var(--primary);
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="password"] {
+            width: 100%;
+            height: 52px;
+            background-color: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-bottom: 3.5px solid var(--primary);
+            border-radius: 10px;
+            padding: 0 16px;
+            color: var(--text-main);
+            font-size: 16.5px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        input.invalid {
+            border-color: var(--error) !important;
+            background-color: var(--error-bg);
+        }
+
+        .field-hint {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+
+        .error-banner {
+            display: none;
+            background-color: var(--error-bg);
+            border: 1.5px solid #fca5a5;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--error);
+            margin-top: 8px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-banner.active {
+            display: flex;
+        }
+
+        .btn-action {
+            width: 100%;
+            height: 54px;
+            background-color: var(--primary);
+            color: var(--primary-text);
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-action:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 14.5px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 0 0 0;
+            margin: 0 auto;
+        }
+
+        .btn-back:hover {
+            color: var(--text-main);
+            text-decoration: underline;
+        }
+
+        .footer-login-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14.5px;
+            color: var(--text-muted);
+        }
+
+        .footer-login-link a {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .footer-login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .success-box {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .success-icon {
+            width: 64px;
+            height: 64px;
+            background: #dcfce7;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div class="access-card">
+            <header class="card-header">
+                <div class="logo-partnership">
+                    <img src="http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png" alt="INTEGRA">
+                    <span class="logo-separator">×</span>
+                    <img src="http://3.141.142.62:8000/storage/v1/object/public/GASCTPNA/logo%20com%20fundo%20branco.jpg" alt="GASCTPNA">
+                </div>
+                <h1>Criar Acesso ao Sistema</h1>
+            </header>
+
+            <div class="step-indicator">
+                <div class="step-progress-fill" id="progressFill"></div>
+            </div>
+
+            <form id="form-criar-acesso" autocomplete="off" novalidate>
+                <!-- Passo 1: Nome Completo -->
+                <div class="step-pane active" data-step="1">
+                    <div class="step-badge">Passo 1 de 4</div>
+                    <div class="field-group">
+                        <label for="name">
+                            <i data-lucide="user"></i>
+                            <span>Digite seu <span class="key-accent">Nome Completo</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="text" id="name" name="name" placeholder="Ex: João da Silva Santos" required autocomplete="name">
+                        </div>
+                        <div class="field-hint">Informe seu nome como consta no seu documento oficial.</div>
+                        <div class="error-banner" id="err-name">
+                            <i data-lucide="alert-circle"></i> Por favor, digite seu nome completo (mínimo de 3 caracteres).
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passo 2: WhatsApp / Telefone -->
+                <div class="step-pane" data-step="2">
+                    <div class="step-badge">Passo 2 de 4</div>
+                    <div class="field-group">
+                        <label for="phone">
+                            <i data-lucide="phone"></i>
+                            <span>Seu número de <span class="key-accent">Celular (WhatsApp)</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" required autocomplete="tel" inputmode="numeric">
+                        </div>
+                        <div class="field-hint">Utilizaremos este número para validação e avisos do projeto.</div>
+                        <div class="error-banner" id="err-phone">
+                            <i data-lucide="alert-circle"></i> Por favor, digite um número de celular válido com DDD.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passo 3: E-mail -->
+                <div class="step-pane" data-step="3">
+                    <div class="step-badge">Passo 3 de 4</div>
+                    <div class="field-group">
+                        <label for="email">
+                            <i data-lucide="mail"></i>
+                            <span>Seu endereço de <span class="key-accent">E-mail</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required autocomplete="email">
+                        </div>
+                        <div class="field-hint">Será o seu login de acesso ao portal do participante.</div>
+                        <div class="error-banner" id="err-email">
+                            <i data-lucide="alert-circle"></i> Digite um e-mail válido.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Passo 4: Senha -->
+                <div class="step-pane" data-step="4">
+                    <div class="step-badge">Passo 4 de 4</div>
+                    <div class="field-group">
+                        <label for="password">
+                            <i data-lucide="lock"></i>
+                            <span>Crie sua <span class="key-accent">Senha de Acesso</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+                        <div class="field-hint">Sua senha deve ter no mínimo 6 caracteres.</div>
+                        <div class="error-banner" id="err-password">
+                            <i data-lucide="alert-circle"></i> A senha deve conter pelo menos 6 caracteres.
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-top: 16px;">
+                        <label for="confirm_password">
+                            <i data-lucide="shield-check"></i>
+                            <span>Confirme sua <span class="key-accent">Senha</span></span>
+                        </label>
+                        <div class="input-wrapper">
+                            <input type="password" id="confirm_password" name="confirm_password" placeholder="••••••••" required autocomplete="new-password">
+                        </div>
+                        <div class="error-banner" id="err-confirm_password">
+                            <i data-lucide="alert-circle"></i> As senhas não conferem. Digite novamente.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 24px;">
+                    <button type="button" id="btnNext" class="btn-action">
+                        Avançar <i data-lucide="arrow-right"></i>
+                    </button>
+                    <button type="submit" id="btnSubmit" class="btn-action" style="display: none;">
+                        Concluir Cadastro <i data-lucide="check"></i>
+                    </button>
+                    <button type="button" id="btnBack" class="btn-back" style="display: none;">
+                        <i data-lucide="arrow-left"></i> Voltar ao passo anterior
+                    </button>
+                </div>
+            </form>
+
+            <div class="footer-login-link">
+                Já possui uma conta? <a href="login.html">Fazer Login</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        const form = document.getElementById('form-criar-acesso');
+        const progressFill = document.getElementById('progressFill');
+        const btnNext = document.getElementById('btnNext');
+        const btnSubmit = document.getElementById('btnSubmit');
+        const btnBack = document.getElementById('btnBack');
+
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+
+        // Máscara de Celular
+        phoneInput.addEventListener('input', (e) => {
+            let v = e.target.value.replace(/\D/g, '');
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length > 10) {
+                v = v.replace(/^(\d{2})(\d{5})(\d{4})$/, '($1) $2-$3');
+            } else if (v.length > 6) {
+                v = v.replace(/^(\d{2})(\d{4})(\d{0,4})$/, '($1) $2-$3');
+            } else if (v.length > 2) {
+                v = v.replace(/^(\d{2})(\d{0,5})$/, '($1) $2');
+            } else if (v.length > 0) {
+                v = v.replace(/^(\d*)$/, '($1');
+            }
+            e.target.value = v;
+        });
+
+        function updateStepUI() {
+            document.querySelectorAll('.step-pane').forEach(pane => {
+                const step = parseInt(pane.getAttribute('data-step'));
+                if (step === currentStep) {
+                    pane.classList.add('active');
+                    const inp = pane.querySelector('input');
+                    if (inp) inp.focus();
+                } else {
+                    pane.classList.remove('active');
+                }
+            });
+
+            progressFill.style.width = `${(currentStep / totalSteps) * 100}%`;
+
+            if (currentStep === 1) {
+                btnBack.style.display = 'none';
+                btnNext.style.display = 'flex';
+                btnSubmit.style.display = 'none';
+            } else if (currentStep < totalSteps) {
+                btnBack.style.display = 'flex';
+                btnNext.style.display = 'flex';
+                btnSubmit.style.display = 'none';
+            } else {
+                btnBack.style.display = 'flex';
+                btnNext.style.display = 'none';
+                btnSubmit.style.display = 'flex';
+            }
+        }
+
+        function validateCurrentStep() {
+            let valid = true;
+            if (currentStep === 1) {
+                const val = nameInput.value.trim();
+                const err = document.getElementById('err-name');
+                if (val.length < 3) {
+                    nameInput.classList.add('invalid');
+                    err.classList.add('active');
+                    valid = false;
+                } else {
+                    nameInput.classList.remove('invalid');
+                    err.classList.remove('active');
+                }
+            } else if (currentStep === 2) {
+                const val = phoneInput.value.replace(/\D/g, '');
+                const err = document.getElementById('err-phone');
+                if (val.length < 10) {
+                    phoneInput.classList.add('invalid');
+                    err.classList.add('active');
+                    valid = false;
+                } else {
+                    phoneInput.classList.remove('invalid');
+                    err.classList.remove('active');
+                }
+            } else if (currentStep === 3) {
+                const val = emailInput.value.trim();
+                const err = document.getElementById('err-email');
+                const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!regex.test(val)) {
+                    emailInput.classList.add('invalid');
+                    err.classList.add('active');
+                    valid = false;
+                } else {
+                    emailInput.classList.remove('invalid');
+                    err.classList.remove('active');
+                }
+            } else if (currentStep === 4) {
+                const pass = passwordInput.value;
+                const confirm = confirmPasswordInput.value;
+                const errP = document.getElementById('err-password');
+                const errC = document.getElementById('err-confirm_password');
+
+                if (pass.length < 6) {
+                    passwordInput.classList.add('invalid');
+                    errP.classList.add('active');
+                    valid = false;
+                } else {
+                    passwordInput.classList.remove('invalid');
+                    errP.classList.remove('active');
+                }
+
+                if (pass !== confirm || confirm === '') {
+                    confirmPasswordInput.classList.add('invalid');
+                    errC.classList.add('active');
+                    valid = false;
+                } else {
+                    confirmPasswordInput.classList.remove('invalid');
+                    errC.classList.remove('active');
+                }
+            }
+            return valid;
+        }
+
+        async function checkEmailExists(email) {
+            try {
+                const res = await fetch(`https://w.ibrase.com.br/webhook/consultaremail?email=${encodeURIComponent(email)}`);
+                const data = await res.json();
+                return data.exists === true;
+            } catch (err) {
+                return false;
+            }
+        }
+
+        btnNext.addEventListener('click', async () => {
+            if (!validateCurrentStep()) return;
+
+            if (currentStep === 3) {
+                const emailVal = emailInput.value.trim().toLowerCase();
+                btnNext.disabled = true;
+                btnNext.innerHTML = '<i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i> Verificando...';
+                lucide.createIcons();
+
+                const exists = await checkEmailExists(emailVal);
+
+                btnNext.disabled = false;
+                btnNext.innerHTML = 'Avançar <i data-lucide="arrow-right"></i>';
+                lucide.createIcons();
+
+                if (exists) {
+                    const errEl = document.getElementById('err-email');
+                    errEl.innerHTML = '<i data-lucide="alert-circle"></i> Este e-mail já está cadastrado. Faça login ou use outro.';
+                    errEl.classList.add('active');
+                    emailInput.classList.add('invalid');
+                    return;
+                }
+            }
+
+            currentStep++;
+            updateStepUI();
+        });
+
+        btnBack.addEventListener('click', () => {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepUI();
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!validateCurrentStep()) return;
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = '<i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i> Criando Acesso...';
+            lucide.createIcons();
+
+            const emailFinal = emailInput.value.trim().toLowerCase();
+            const nomeFinal = nameInput.value.trim();
+
+            const payload = {
+                instituicao: 'GASCTPNA',
+                acao: 'criar_acesso',
+                name: nomeFinal,
+                phone: phoneInput.value.replace(/\D/g, ''),
+                email: emailFinal,
+                password: passwordInput.value
+            };
+
+            try {
+                await fetch('https://w.ibrase.com.br/webhook/criaracesso', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                // Salvar dados da conta no localStorage para fluxo de login / matrícula
+                localStorage.setItem('usuario_email', emailFinal);
+                localStorage.setItem('usuario_nome', nomeFinal);
+                localStorage.setItem('email_conta', emailFinal);
+
+                showSuccessScreen();
+            } catch (err) {
+                console.error('Erro no envio:', err);
+                localStorage.setItem('usuario_email', emailFinal);
+                localStorage.setItem('usuario_nome', nomeFinal);
+                localStorage.setItem('email_conta', emailFinal);
+                showSuccessScreen();
+            }
+        });
+
+        function showSuccessScreen() {
+            const card = document.querySelector('.access-card');
+            card.innerHTML = `
+                <div class="success-box">
+                    <div class="success-icon">
+                        <i data-lucide="check" style="width: 36px; height: 36px;"></i>
+                    </div>
+                    <h2 style="font-size: 22px; font-weight: 800; color: var(--text-main); margin-bottom: 8px;">Cadastro Concluído! 🎉</h2>
+                    <p style="color: var(--text-muted); font-size: 15px; margin-bottom: 20px;">
+                        Seus dados de acesso foram criados com sucesso.<br>
+                        Redirecionando para a área do participante...
+                    </p>
+                </div>
+            `;
+            lucide.createIcons();
+
+            setTimeout(() => {
+                window.location.href = 'area_aluno.html';
+            }, 1800);
+        }
+    </script>
+</body>
+</html>

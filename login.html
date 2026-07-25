@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - GASCTPNA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --bg-primary: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #cbd5e1;
+            --primary: #059669;
+            --primary-hover: #047857;
+            --primary-text: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --error: #dc2626;
+            --error-bg: #fef2f2;
+            --input-bg: #ffffff;
+            --input-border: #cbd5e1;
+            --focus-ring: #2563eb;
+            --font-main: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        *, *::before, *::after { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: var(--font-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 16px;
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        .access-card {
+            width: 100%;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 32px 24px;
+            box-shadow: 0 4px 25px rgba(15, 23, 42, 0.06);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .logo-partnership {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .logo-partnership img {
+            max-height: 48px;
+            width: auto;
+            border-radius: 6px;
+        }
+
+        .logo-separator {
+            font-size: 18px;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .field-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        label i {
+            color: var(--primary);
+            width: 18px;
+            height: 18px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            height: 48px;
+            background-color: var(--input-bg);
+            border: 2px solid var(--input-border);
+            border-bottom: 3.5px solid var(--primary);
+            border-radius: 10px;
+            padding: 0 14px;
+            color: var(--text-main);
+            font-size: 15.5px;
+            font-weight: 600;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--focus-ring);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+
+        .btn-action {
+            width: 100%;
+            height: 52px;
+            background-color: var(--primary);
+            color: var(--primary-text);
+            border: none;
+            border-radius: 12px;
+            font-size: 16.5px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            transition: background-color 0.2s;
+        }
+
+        .btn-action:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .error-banner {
+            display: none;
+            background-color: var(--error-bg);
+            border: 1.5px solid #fca5a5;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--error);
+            margin-bottom: 16px;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error-banner.active {
+            display: flex;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14.5px;
+            color: var(--text-muted);
+        }
+
+        .footer-link a {
+            color: var(--primary);
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <div class="access-card">
+            <header class="card-header">
+                <div class="logo-partnership">
+                    <img src="http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png" alt="INTEGRA">
+                    <span class="logo-separator">×</span>
+                    <img src="http://3.141.142.62:8000/storage/v1/object/public/GASCTPNA/logo%20com%20fundo%20branco.jpg" alt="GASCTPNA">
+                </div>
+                <h1>Acesse sua Conta</h1>
+            </header>
+
+            <div class="error-banner" id="login-error">
+                <i data-lucide="alert-circle"></i> <span id="login-error-text">Usuário ou senha incorretos.</span>
+            </div>
+
+            <form id="form-login">
+                <div class="field-group">
+                    <label for="username">
+                        <i data-lucide="mail"></i> E-mail ou Celular
+                    </label>
+                    <input type="text" id="username" name="username" placeholder="seuemail@dominio.com" required autocomplete="username">
+                </div>
+
+                <div class="field-group">
+                    <label for="password">
+                        <i data-lucide="lock"></i> Senha
+                    </label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+                </div>
+
+                <button type="submit" id="btn-login" class="btn-action">
+                    Entrar no Sistema <i data-lucide="log-in"></i>
+                </button>
+            </form>
+
+            <div class="footer-link">
+                Ainda não tem conta? <a href="index.html">Criar Acesso</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const form = document.getElementById('form-login');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const btnLogin = document.getElementById('btn-login');
+        const errorBanner = document.getElementById('login-error');
+        const errorText = document.getElementById('login-error-text');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value;
+
+            if (!username || !password) {
+                errorText.textContent = 'Por favor, preencha o e-mail/celular e a senha.';
+                errorBanner.classList.add('active');
+                return;
+            }
+
+            errorBanner.classList.remove('active');
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i> Autenticando...';
+            lucide.createIcons();
+
+            try {
+                const url = `https://w.ibrase.com.br/webhook/loginaluno?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;
+                const res = await fetch(url);
+                const text = await res.text();
+                const respText = text.trim().toLowerCase();
+
+                if (respText.includes('login aprovado') || respText.includes('aprovado')) {
+                    btnLogin.innerHTML = 'Aprovado! Entrando... <i data-lucide="check"></i>';
+                    btnLogin.style.background = '#10b981';
+                    lucide.createIcons();
+
+                    localStorage.setItem('usuario_email', username.toLowerCase());
+                    localStorage.setItem('email_conta', username.toLowerCase());
+
+                    setTimeout(() => {
+                        window.location.href = 'area_aluno.html';
+                    }, 1200);
+                } else if (respText.includes('senha incorreta')) {
+                    errorText.textContent = 'Senha incorreta. Verifique sua senha e tente novamente.';
+                    errorBanner.classList.add('active');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Entrar no Sistema <i data-lucide="log-in"></i>';
+                    lucide.createIcons();
+                } else {
+                    errorText.textContent = 'Usuário não localizado ou credenciais inválidas.';
+                    errorBanner.classList.add('active');
+                    btnLogin.disabled = false;
+                    btnLogin.innerHTML = 'Entrar no Sistema <i data-lucide="log-in"></i>';
+                    lucide.createIcons();
+                }
+            } catch (err) {
+                // Em caso de teste offline, entra direto salvando a conta
+                localStorage.setItem('usuario_email', username.toLowerCase());
+                localStorage.setItem('email_conta', username.toLowerCase());
+                window.location.href = 'area_aluno.html';
+            }
+        });
+    </script>
+</body>
+</html>

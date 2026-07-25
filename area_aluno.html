@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Área do Participante - GASCTPNA</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --primary: #059669;
+            --primary-hover: #047857;
+            --bg-page: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --font-main: 'Plus Jakarta Sans', system-ui, sans-serif;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: #ffffff;
+            border-bottom: 1px solid var(--border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .navbar-brand img {
+            max-height: 42px;
+            width: auto;
+        }
+
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .user-email-badge {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--primary);
+            background: #ecfdf5;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 8px 14px;
+            border-radius: 8px;
+            font-size: 13.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: #f1f5f9;
+            color: #dc2626;
+        }
+
+        .main-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+
+        .welcome-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            margin-bottom: 24px;
+        }
+
+        .welcome-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .welcome-desc {
+            font-size: 15px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .action-banner {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            border-radius: 16px;
+            padding: 28px;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            box-shadow: 0 10px 25px rgba(5, 150, 105, 0.25);
+        }
+
+        .action-text h2 {
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .action-text p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .btn-matricular {
+            background: #ffffff;
+            color: #047857;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-matricular:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .grid-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            background: #ecfdf5;
+            color: var(--primary);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-card-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .info-card-desc {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-brand">
+            <img src="http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png" alt="INTEGRA">
+            <span style="font-weight: 800; font-size: 16px; color: var(--primary);">Área do Participante</span>
+        </div>
+        <div class="user-menu">
+            <span class="user-email-badge" id="display-user-email">aluno@gasctpna.com.br</span>
+            <button type="button" class="btn-logout" onclick="logout()">
+                <i data-lucide="log-out"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <main class="main-container">
+        <div class="welcome-card">
+            <h1 class="welcome-title" id="display-welcome-title">Bem-vindo(a) ao Portal GASCTPNA! 👋</h1>
+            <p class="welcome-desc">
+                Sua conta de participante está ativa. Aqui você pode realizar e acompanhar suas matrículas nos projetos esportivos e culturais oferecidos.
+            </p>
+
+            <div class="action-banner">
+                <div class="action-text">
+                    <h2>Nova Matrícula em Projetos</h2>
+                    <p>Preencha a ficha de matrícula online para garantir sua vaga nas turmas e modalidades disponíveis.</p>
+                </div>
+                <a href="matricula.html" class="btn-matricular">
+                    <i data-lucide="file-plus"></i> Fazer Minha Matrícula
+                </a>
+            </div>
+        </div>
+
+        <div class="grid-info">
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-icon"><i data-lucide="info"></i></div>
+                    <div class="info-card-title">Documentação</div>
+                </div>
+                <div class="info-card-desc">
+                    Caso possua laudo médico ou comprovantes, você poderá anexar os documentos diretamente durante o preenchimento da matrícula.
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-header">
+                    <div class="info-icon"><i data-lucide="shield-check"></i></div>
+                    <div class="info-card-title">Privacidade LGPD</div>
+                </div>
+                <div class="info-card-desc">
+                    Seus dados pessoais são protegidos pela Lei Geral de Proteção de Dados e utilizados exclusivamente para os projetos da instituição.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || 'participante@gasctpna.com.br';
+        const userName = localStorage.getItem('usuario_nome') || '';
+
+        document.getElementById('display-user-email').textContent = userEmail;
+        if (userName) {
+            document.getElementById('display-welcome-title').textContent = `Bem-vindo(a), ${userName}! 👋`;
+        }
+
+        function logout() {
+            localStorage.removeItem('usuario_email');
+            localStorage.removeItem('usuario_nome');
+            localStorage.removeItem('email_conta');
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
