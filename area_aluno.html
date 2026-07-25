@@ -472,20 +472,110 @@
 
         if (text && text.trim().length > 0) {
           try {
-            const json = JSON.parse(text);
-            htmlContent += '<div style="display:flex;flex-direction:column;gap:10px;">';
-            for (let key in json) {
-              if (json[key]) {
-                let labelKey = key.replace(/_/g, ' ').toUpperCase();
-                htmlContent += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-                  <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
-                  <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${json[key]}</span>
-                </div>`;
+            let parsed = extrairJSON(text) || JSON.parse(text);
+            let item = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+
+            const EXCLUDED_KEYS = [
+              'email_conta', 'telefone_conta', 'validation_token', 'portal_usuario_id',
+              'projeto_id', 'cidade_id', 'bairro_id', 'modalidade_id', 'nucleo_id',
+              'lgpd_aceite', 'lgpd_aceite_em', 'lgpd_versao', 'aceite_veracidade',
+              'aceite_veracidade_em', 'aceite_veracidade_versao', 'chk_usar_nome_social',
+              'documentos_urls', 'rede_social_tipo', 'rede_social_link', 'instagram',
+              'tiktok', 'facebook', 'youtube', 'twitter_x'
+            ];
+
+            const LABELS_MAP = {
+              id: "Matrícula ID",
+              created_at: "Data do Cadastro",
+              status: "Status",
+              origem_cadastro: "Origem do Cadastro",
+              turma: "Turma",
+              turno: "Turno",
+              aluno_cpf: "CPF do Aluno",
+              aluno_nome: "Nome Completo",
+              nome_social: "Nome Social",
+              data_nascimento: "Data de Nascimento",
+              sexo: "Gênero",
+              idade: "Idade",
+              altura: "Altura (cm)",
+              peso: "Peso (kg)",
+              tamanho_calcado: "Calçado",
+              tamanho_camisa: "Camisa",
+              tamanho_calca: "Bermuda / Calça",
+              raca: "Raça / Etnia",
+              naturalidade: "Naturalidade",
+              escolaridade: "Escolaridade",
+              cep: "CEP",
+              endereco: "Endereço",
+              numero: "Número",
+              complemento: "Complemento",
+              bairro: "Bairro",
+              cidade: "Cidade",
+              uf: "UF / Estado",
+              faixa_salarial: "Faixa Salarial",
+              whatsapp: "WhatsApp / Telefone",
+              profissao: "Profissão",
+              email: "E-mail",
+              resp_cpf: "CPF do Responsável",
+              resp_nome: "Nome do Responsável",
+              resp_nome_social: "Nome Social do Resp.",
+              resp_data_nasc: "Data Nasc. do Resp.",
+              resp_sexo: "Gênero do Resp.",
+              resp_raca: "Raça do Resp.",
+              resp_email: "E-mail do Resp.",
+              resp_whatsapp: "WhatsApp do Resp.",
+              resp_escolaridade: "Escolaridade do Resp.",
+              resp_profissao: "Profissão do Resp.",
+              uso_medicacao: "Uso de Medicação",
+              uso_medicacao_detalhes: "Detalhes da Medicação",
+              possui_alergias: "Possui Alergias",
+              possui_alergias_detalhes: "Detalhes das Alergias",
+              plano_saude: "Plano de Saúde",
+              plano_saude_detalhes: "Detalhes do Plano",
+              acompan_medico: "Acompanhamento Médico",
+              acompan_medico_detalhes: "Detalhes do Acompanhamento",
+              restricao_fisica: "Restrição Física",
+              restricao_fisica_detalhes: "Detalhes da Restrição",
+              necessidade_especial: "Necessidade Especial",
+              necessidade_especial_detalhes: "Detalhes da Necessidade",
+              deseja_laudo: "Anexou Laudo / Documento"
+            };
+
+            htmlContent += '<div style="display:flex;flex-direction:column;gap:8px;">';
+            
+            let countValid = 0;
+            for (let key in item) {
+              const val = item[key];
+              
+              if (EXCLUDED_KEYS.includes(key)) continue;
+              if (val === null || val === undefined || val === false || val === '') continue;
+              if (typeof val === 'string' && (val.trim() === '' || val.trim() === '=')) continue;
+
+              countValid++;
+              let labelKey = LABELS_MAP[key] || key.replace(/_/g, ' ').toUpperCase();
+              let displayVal = val;
+
+              // Formatação amigável para data de nascimento
+              if ((key === 'data_nascimento' || key === 'resp_data_nasc') && typeof val === 'string' && val.includes('-')) {
+                const parts = val.split('-');
+                if (parts.length === 3) displayVal = `${parts[2]}/${parts[1]}/${parts[0]}`;
               }
+
+              htmlContent += `
+                <div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <span style="font-size:11.5px;font-weight:800;color:#64748b;text-transform:uppercase;">${labelKey}</span>
+                  <span style="font-size:14px;font-weight:700;color:#0f172a;text-align:right;">${sanitizeText(String(displayVal))}</span>
+                </div>
+              `;
             }
+
+            if (countValid === 0) {
+              htmlContent += '<div style="padding:20px;text-align:center;color:#64748b;">Nenhuma informação adicional encontrada.</div>';
+            }
+
             htmlContent += '</div>';
           } catch(e) {
-            const formattedLines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+            const formattedLines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l && l !== '[object Object]');
             htmlContent += '<div style="display:flex;flex-direction:column;gap:8px;">';
             formattedLines.forEach(line => {
               htmlContent += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
