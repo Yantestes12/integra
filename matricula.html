@@ -3138,6 +3138,10 @@
                 if (btn) { btn.textContent = 'Enviado! ✅'; }
                 if (btnNav) { btnNav.textContent = 'Enviado! ✅'; }
                 
+                // Limpar cache local de dados antigos para forçar a busca de novas matrículas na área do aluno
+                localStorage.removeItem('usuario_dados');
+                window.lastValidationToken = valToken;
+
                 var progressContainer = document.querySelector('.progress-container');
                 if(progressContainer) progressContainer.style.display = 'none';
                 
@@ -3150,19 +3154,20 @@
                 var loginCard = document.querySelector('.login-card');
                 if(loginCard) {
                     var successDiv = document.createElement('div');
-                    var msgRedir = (window.location.protocol !== 'file:') ? 'Redirecionando para a página principal...' : 'Formulário finalizado com sucesso.';
-                    successDiv.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
-                        '<div style="font-size:48px;margin-bottom:20px;">🎉</div>' +
-                        '<h2 style="color:var(--primary);margin-bottom:10px;">Matrícula Concluída!</h2>' +
-                        '<p style="color:var(--muted);line-height:1.6;">' + msgRedir + '</p>' +
+                    successDiv.innerHTML = '<div style="text-align:center;padding:30px 16px;">' +
+                        '<div style="font-size:52px;margin-bottom:12px;">🎉</div>' +
+                        '<h2 style="color:var(--primary);margin-bottom:8px;font-weight:800;font-size:22px;">Matrícula Concluída com Sucesso!</h2>' +
+                        '<p style="color:var(--muted);line-height:1.5;margin-bottom:24px;font-size:14px;font-weight:600;">Sua inscrição foi enviada e registrada no sistema.</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:12px;max-width:340px;margin:0 auto;">' +
+                        '  <button type="button" onclick="baixarComprovanteInscricaoDirect()" style="background:#059669;color:#ffffff;border:none;padding:14px 18px;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 12px rgba(5,150,105,0.25);">' +
+                        '    📥 Baixar Comprovante de Inscrição' +
+                        '  </button>' +
+                        '  <a href="area_aluno.html" style="background:#0f172a;color:#ffffff;text-decoration:none;padding:14px 18px;border-radius:12px;font-size:14px;font-weight:800;display:block;text-align:center;">' +
+                        '    Ir para Área do Participante →' +
+                        '  </a>' +
+                        '</div>' +
                         '</div>';
                     loginCard.appendChild(successDiv);
-                }
-
-                if (window.location.protocol !== 'file:') {
-                    setTimeout(function(){
-                        window.location.href = 'area_aluno.html';
-                    }, 2500);
                 }
             })
             .catch(function(err) {
@@ -3230,6 +3235,132 @@
             wrap.style.display = 'none';
             if (input) input.value = '';
         }
+    }
+
+    function baixarComprovanteInscricaoDirect() {
+        var valToken = window.lastValidationToken || ('VAL-' + Date.now().toString(36).toUpperCase());
+        var nomeAluno = (document.getElementById('aluno_nome') ? document.getElementById('aluno_nome').value : '') || 'Aluno Cadastrado';
+        var cpfAluno = document.getElementById('aluno_cpf') ? document.getElementById('aluno_cpf').value : '';
+        var dataNasc = document.getElementById('data_nascimento') ? document.getElementById('data_nascimento').value : '';
+        var sexo = document.getElementById('sexo') ? document.getElementById('sexo').value : '';
+        var raca = document.getElementById('raca') ? document.getElementById('raca').value : '';
+        var escolaridade = document.getElementById('escolaridade') ? document.getElementById('escolaridade').value : '';
+        var whatsapp = document.getElementById('whatsapp') ? document.getElementById('whatsapp').value : '';
+        var email = document.getElementById('email') ? document.getElementById('email').value : '';
+        var endereco = document.getElementById('endereco') ? document.getElementById('endereco').value : '';
+        var numero = document.getElementById('numero') ? document.getElementById('numero').value : '';
+        var complemento = document.getElementById('complemento') ? document.getElementById('complemento').value : '';
+        var bairro = document.getElementById('bairro') ? document.getElementById('bairro').value : '';
+        var cidade = document.getElementById('cidade') ? document.getElementById('cidade').value : '';
+        var tamCamisa = document.getElementById('tamanho_camisa') ? document.getElementById('tamanho_camisa').value : '';
+        var tamCalca = document.getElementById('tamanho_calca') ? document.getElementById('tamanho_calca').value : '';
+        var tamCalcado = document.getElementById('tamanho_calcado') ? document.getElementById('tamanho_calcado').value : '';
+        var altura = document.getElementById('altura') ? document.getElementById('altura').value : '';
+        var peso = document.getElementById('peso') ? document.getElementById('peso').value : '';
+        var respNome = document.getElementById('resp_nome') ? document.getElementById('resp_nome').value : '';
+        var respCpf = document.getElementById('resp_cpf') ? document.getElementById('resp_cpf').value : '';
+        var respWhats = document.getElementById('resp_whatsapp') ? document.getElementById('resp_whatsapp').value : '';
+
+        var printWin = window.open('', '_blank');
+        if (!printWin) {
+            alert('Por favor, permita pop-ups no seu navegador para baixar o comprovante.');
+            return;
+        }
+
+        var printDoc = printWin.document;
+        printDoc.write(`
+            <!DOCTYPE html>
+            <html lang="pt-BR">
+            <head>
+              <meta charset="UTF-8">
+              <title>Comprovante de Inscrição</title>
+              <style>
+                @page { size: A4; margin: 12mm; }
+                body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #0f172a; line-height: 1.4; padding: 15px; background: #fff; }
+                .no-print { text-align: right; margin-bottom: 15px; }
+                .btn-print { background: #059669; color: #ffffff; border: none; padding: 10px 20px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 13px; box-shadow: 0 4px 12px rgba(5,150,105,0.2); }
+                .header-title { text-align: center; font-size: 18px; text-transform: uppercase; margin-bottom: 6px; color: #0f172a; font-weight: 800; letter-spacing: 0.5px; }
+                .header-meta { text-align: center; font-weight: 700; font-size: 11px; margin-bottom: 16px; background: #f8fafc; padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; }
+                .section-box { border: 1px solid #cbd5e1; border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #fff; }
+                .section-title { font-weight: 800; font-size: 11.5px; text-transform: uppercase; margin-bottom: 8px; color: #059669; border-bottom: 1.5px solid #ecfdf5; padding-bottom: 4px; letter-spacing: 0.5px; }
+                .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+                .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+                .row { margin-bottom: 4px; }
+                .label { font-weight: 700; color: #64748b; font-size: 10.5px; text-transform: uppercase; }
+                .val { font-weight: 700; color: #0f172a; }
+                .qr-container { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: 18px; padding: 16px; border: 2px dashed #059669; border-radius: 14px; background: #f0fdf4; text-align: center; }
+                .qr-code img { width: 140px; height: 140px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; padding: 6px; }
+                .qr-token { font-family: monospace; font-size: 12px; font-weight: 800; margin-top: 8px; color: #047857; letter-spacing: 1px; }
+                @media print {
+                  .no-print { display: none !important; }
+                  body { padding: 0; }
+                }
+              </style>
+            </head>
+            <body>
+              <div class="no-print">
+                <button type="button" class="btn-print" onclick="window.print()">🖨️ Imprimir / Salvar em PDF</button>
+              </div>
+
+              <div class="header-title">FICHA CADASTRAL DE MATRÍCULA</div>
+              <div class="header-meta">
+                Projeto: GASCTPNA &nbsp;|&nbsp; Data: ${new Date().toLocaleDateString('pt-BR')}
+              </div>
+
+              <div class="section-box">
+                <div class="section-title">1. DADOS DO ALUNO(A)</div>
+                <div class="row"><span class="label">Nome completo:</span> <span class="val" style="font-size:13px;">${nomeAluno}</span></div>
+                <div class="grid-3" style="margin-top:6px;">
+                  <div><span class="label">CPF:</span> <span class="val">${cpfAluno || '---'}</span></div>
+                  <div><span class="label">Data de Nasc.:</span> <span class="val">${dataNasc || '---'}</span></div>
+                  <div><span class="label">Sexo:</span> <span class="val">${sexo || '---'}</span></div>
+                  <div><span class="label">Raça:</span> <span class="val">${raca || '---'}</span></div>
+                  <div><span class="label">Escolaridade:</span> <span class="val">${escolaridade || '---'}</span></div>
+                </div>
+                <div class="grid-2" style="margin-top:6px;">
+                  <div><span class="label">Telefone:</span> <span class="val">${whatsapp || '---'}</span></div>
+                  <div><span class="label">E-mail:</span> <span class="val">${email || '---'}</span></div>
+                  <div><span class="label">Endereço:</span> <span class="val">${endereco || ''}, Nº ${numero || ''} ${complemento || ''}</span></div>
+                  <div><span class="label">Cidade/Bairro:</span> <span class="val">${cidade || '---'} - ${bairro || ''}</span></div>
+                </div>
+                <div class="grid-3" style="margin-top:8px;background:#f8fafc;padding:8px;border-radius:8px;">
+                  <div><span class="label">Camiseta:</span> <span class="val">${tamCamisa || '---'}</span></div>
+                  <div><span class="label">Bermuda/Calça:</span> <span class="val">${tamCalca || '---'}</span></div>
+                  <div><span class="label">Calçado:</span> <span class="val">${tamCalcado || '---'}</span></div>
+                  <div><span class="label">Altura:</span> <span class="val">${altura ? altura + ' cm' : '---'}</span></div>
+                  <div><span class="label">Peso:</span> <span class="val">${peso ? peso + ' kg' : '---'}</span></div>
+                </div>
+              </div>
+
+              ${respNome ? `
+              <div class="section-box">
+                <div class="section-title">2. DADOS DO RESPONSÁVEL DO ALUNO(A)</div>
+                <div class="row"><span class="label">Nome completo:</span> <span class="val">${respNome}</span></div>
+                <div class="grid-3" style="margin-top:4px;">
+                  <div><span class="label">CPF:</span> <span class="val">${respCpf || '---'}</span></div>
+                  <div><span class="label">Telefone:</span> <span class="val">${respWhats || '---'}</span></div>
+                </div>
+              </div>
+              ` : ''}
+
+              <div class="section-box">
+                <div class="section-title">DECLARAÇÃO DE RESPONSABILIDADE</div>
+                <p style="font-size:10px;color:#475569;margin:0;">
+                  Perante a integral gratuidade desse serviço, confirmo e declaro ter ciência e aceite dos termos de participação, compromisso e veracidade das informações prestadas nesta matrícula.
+                </p>
+              </div>
+
+              <div class="qr-container">
+                <div style="font-size:12px;font-weight:bold;color:#0f172a;margin-bottom:8px;text-transform:uppercase;">Comprovante de Autenticidade Digital</div>
+                <div class="qr-code">
+                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(valToken)}" alt="QR Code Validation Token" />
+                </div>
+                <div class="qr-token">VALIDATION TOKEN: ${valToken}</div>
+              </div>
+            </body>
+            </html>
+        `);
+        printDoc.close();
     }
 </script>
 </body>
