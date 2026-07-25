@@ -243,9 +243,23 @@
       return temp.innerHTML;
     }
 
-    const userName = localStorage.getItem('usuario_nome') || '';
-    const userPrimeiroNome = localStorage.getItem('usuario_primeiro_nome') || '';
-    const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+    function getCookie(name) {
+      const nameEQ = name + "=";
+      const ca = document.cookie.split(';');
+      for(let i = 0; i < ca.length; i++) {
+        let c = ca[i].trim();
+        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
+      }
+      return '';
+    }
+
+    function getStoredVal(key) {
+      return localStorage.getItem(key) || getCookie(key) || '';
+    }
+
+    const userName = getStoredVal('usuario_nome');
+    const userPrimeiroNome = getStoredVal('usuario_primeiro_nome');
+    const userEmail = getStoredVal('usuario_email') || getStoredVal('email_conta');
 
     let candidateName = userPrimeiroNome || (userName.trim() ? userName.trim().split(' ')[0] : '');
     if (!candidateName || /^\d+$/.test(candidateName)) {
@@ -301,8 +315,8 @@
       }
 
       // 2. Sempre fazer uma nova consulta atualizada no servidor (webhook loginaluno) ao carregar/recarregar a página
-      const username = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const password = localStorage.getItem('usuario_senha') || '';
+      const username = getStoredVal('usuario_email') || getStoredVal('email_conta');
+      const password = getStoredVal('usuario_senha');
 
       if (username) {
         try {
@@ -351,8 +365,8 @@
         </div>
       `;
 
-      const username = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
-      const password = localStorage.getItem('usuario_senha') || '';
+      const username = getStoredVal('usuario_email') || getStoredVal('email_conta');
+      const password = getStoredVal('usuario_senha');
 
       try {
         const url = `https://w.ibrase.com.br/webhook/loginaluno?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`;

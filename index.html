@@ -851,15 +851,40 @@
                 password: passwordInput.value
             };
 
+            function setCookie(name, val, days = 30) {
+                const d = new Date();
+                d.setTime(d.getTime() + (days * 24 * 60 * 60 * 1000));
+                document.cookie = `${name}=${encodeURIComponent(val)};expires=${d.toUTCString()};path=/;SameSite=Lax`;
+            }
+
+            function salvarSessaoLocal() {
+                localStorage.setItem('usuario_nome', payload.name);
+                localStorage.setItem('usuario_primeiro_nome', payload.name.split(' ')[0]);
+                localStorage.setItem('usuario_email', payload.email);
+                localStorage.setItem('email_conta', payload.email);
+                localStorage.setItem('usuario_telefone', payload.phone);
+                localStorage.setItem('usuario_senha', payload.password);
+
+                setCookie('usuario_nome', payload.name);
+                setCookie('usuario_primeiro_nome', payload.name.split(' ')[0]);
+                setCookie('usuario_email', payload.email);
+                setCookie('email_conta', payload.email);
+                setCookie('usuario_telefone', payload.phone);
+                setCookie('usuario_senha', payload.password);
+            }
+
             try {
                 await fetch('https://w.ibrase.com.br/webhook/criaracesso', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                
+                salvarSessaoLocal();
                 showSuccessScreen();
             } catch (err) {
                 console.error('Erro no envio:', err);
+                salvarSessaoLocal();
                 showSuccessScreen();
             }
         });
