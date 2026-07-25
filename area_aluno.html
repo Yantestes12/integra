@@ -213,8 +213,8 @@
             
             <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
               <a href="matricula.html" class="al-btn al-btn-primary">Fazer minha matrícula</a>
-              <button type="button" class="al-btn" style="background:#0f172a;color:#fff;box-shadow: 0 6px 14px rgba(15,23,42,0.15);" onclick="buscarEMostrarMatricula()">
-                <i data-lucide="file-text"></i> Consultar Meus Dados
+              <button type="button" id="btn-consultar-matriculas" class="al-btn" style="display: none; background:#0f172a; color:#fff; box-shadow: 0 6px 14px rgba(15,23,42,0.15);" onclick="buscarEMostrarMatricula()">
+                <i data-lucide="file-text"></i> Consultar Matrículas
               </button>
             </div>
           </div>
@@ -286,6 +286,38 @@
       }
     }
 
+    async function verificarSePossuiMatricula() {
+      const btnConsultar = document.getElementById('btn-consultar-matriculas');
+      if (!btnConsultar) return;
+
+      const localId = localStorage.getItem('usuario_id');
+      const localDados = localStorage.getItem('usuario_dados');
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+
+      // Se já possui ID ou dados salvos localmente
+      if ((localId && localId.trim().length > 0) || (localDados && localDados.trim().length > 0 && localDados !== '[object Object]')) {
+        btnConsultar.style.display = 'inline-flex';
+      }
+
+      // Verificação em segundo plano no webhook buscarmatricula
+      if (email) {
+        try {
+          const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(localId || '')}`;
+          const res = await fetch(url);
+          const text = await res.text();
+          const clean = text.trim();
+          if (clean && clean !== '[object Object]' && !clean.includes('nenhuma') && !clean.includes('não existe')) {
+            localStorage.setItem('usuario_dados', clean);
+            btnConsultar.style.display = 'inline-flex';
+          }
+        } catch(err) {
+          console.error('Erro ao verificar matrícula:', err);
+        }
+      }
+    }
+
+    verificarSePossuiMatricula();
+
     async function buscarEMostrarMatricula() {
       const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
       const id = localStorage.getItem('usuario_id') || '';
@@ -319,28 +351,89 @@
 
     function renderizarDados(rawText) {
       const bodyEl = document.getElementById('dadosModalContent');
+      if (!rawText || rawText === '[object Object]') {
+        bodyEl.innerHTML = '<div style="text-align:center;padding:20px;color:#64748b;font-weight:600;">Sem dados detalhados cadastrados.</div>';
+        return;
+      }
+
       let html = '';
       
       try {
-        const json = JSON.parse(rawText);
-        html += '<div style="display:flex;flex-direction:column;gap:10px;">';
-        for (let key in json) {
-          if (json[key]) {
-            let labelKey = key.replace(/_/g, ' ').toUpperCase();
-            html += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
-              <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
-              <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${json[key]}</span>
-            </div>`;
+        let parsed = JSON.parse(rawText);
+        
+        let itemObj = Array.isArray(parsed) ? (parsed[0] || {}) : parsed;
+        
+        if (itemObj && itemObj.matriculas && Array.isArray(itemObj.matriculas)) {
+          html += `<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#059669;display:flex;align-items:center;gap:6px;">
+            <i data-lucide="check-circle"></i> ${itemObj.matriculas.length} Matrícula(s) Encontrada(s)
+          </div>`;
+          
+          html += '<div style="display:flex;flex-direction:column;gap:12px;">';
+          itemObj.matriculas.forEach((mat, idx) => {
+            html += `<div style="padding:16px;background:#f8fafc;border-radius:16px;border:1.5px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.02);">
+              <div style="font-size:12px;font-weight:800;color:#10b981;text-transform:uppercase;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;">
+                <span>Matrícula #${mat.id || (idx + 1)}</span>
+                ${mat.status ? `<span style="background:#dcfce7;color:#15803d;padding:2px 8px;border-radius:6px;font-size:11px;">${mat.status}</span>` : ''}
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;">`;
+              
+              for (let k in mat) {
+                if (mat[k] && k !== 'id') {
+                  let label = k.replace(/_/g, ' ').toUpperCase();
+                  html += `<div style="font-size:13.5px;color:#1e293b;">
+                    <span style="font-weight:700;color:#64748b;font-size:12px;">${label}:</span> 
+                    <span style="font-weight:700;">${mat[k]}</span>
+                  </div>`;
+                }
+              }
+              
+            html += `</div></div>`;
+          });
+          html += '</div>';
+        } else if (Array.isArray(parsed)) {
+          html += '<div style="display:flex;flex-direction:column;gap:12px;">';
+          parsed.forEach((mat, idx) => {
+            html += `<div style="padding:14px;background:#f8fafc;border-radius:14px;border:1px solid #e2e8f0;">
+              <div style="font-size:12px;font-weight:800;color:#059669;margin-bottom:6px;">Registro #${idx + 1}</div>`;
+            if (typeof mat === 'object') {
+              for (let k in mat) {
+                if (mat[k]) {
+                  let label = k.replace(/_/g, ' ').toUpperCase();
+                  html += `<div style="font-size:13px;margin-bottom:4px;"><span style="color:#64748b;font-weight:700;">${label}:</span> <strong>${mat[k]}</strong></div>`;
+                }
+              }
+            } else {
+              html += `<div style="font-size:14px;font-weight:700;">${mat}</div>`;
+            }
+            html += `</div>`;
+          });
+          html += '</div>';
+        } else if (typeof parsed === 'object') {
+          html += '<div style="display:flex;flex-direction:column;gap:10px;">';
+          for (let key in parsed) {
+            if (parsed[key]) {
+              let labelKey = key.replace(/_/g, ' ').toUpperCase();
+              html += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+                <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
+                <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${typeof parsed[key] === 'object' ? JSON.stringify(parsed[key]) : parsed[key]}</span>
+              </div>`;
+            }
           }
+          html += '</div>';
+        } else {
+          html = `<div style="padding:14px;background:#f8fafc;border-radius:12px;font-weight:700;color:#0f172a;">${sanitizeText(String(parsed))}</div>`;
         }
-        html += '</div>';
       } catch(e) {
-        const formattedLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-        html += '<div style="display:flex;flex-direction:column;gap:8px;">';
-        formattedLines.forEach(line => {
-          html += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
-        });
-        html += '</div>';
+        const formattedLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l && l !== '[object Object]');
+        if (formattedLines.length === 0) {
+          html = '<div style="text-align:center;padding:20px;color:#64748b;font-weight:600;">Nenhum dado cadastrado encontrado.</div>';
+        } else {
+          html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+          formattedLines.forEach(line => {
+            html += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
+          });
+          html += '</div>';
+        }
       }
       
       bodyEl.innerHTML = html;
