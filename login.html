@@ -225,11 +225,16 @@
             font-size: 12.5px;
             font-weight: 700;
             cursor: pointer;
-            z-index: 3;
+            z-index: 10;
             display: flex;
             align-items: center;
             gap: 4px;
             transition: background 0.2s;
+            user-select: none;
+        }
+
+        .btn-toggle-pass * {
+            pointer-events: none;
         }
 
         .btn-toggle-pass:hover {
@@ -530,7 +535,9 @@
 
         const btnTogglePass = document.getElementById('btnTogglePassLogin');
         if (btnTogglePass && passwordInput) {
-            btnTogglePass.addEventListener('click', () => {
+            btnTogglePass.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 const isPass = passwordInput.type === 'password';
                 passwordInput.type = isPass ? 'text' : 'password';
                 btnTogglePass.innerHTML = isPass 
@@ -587,14 +594,6 @@
                         btnSubmit.textContent = 'Sucesso! Entrando...';
                         btnSubmit.style.background = '#10b981';
 
-                        // Processamento das linhas de resposta do Webhook n8n
-                        // Estrutura do Webhook:
-                        // Linha 0 (ou 1 no n8n): login aprovado
-                        // Linha 1 (ou 2 no n8n): Nome Completo (ex: YAN DE OLIVEIRA FERREIRA)
-                        // Linha 2 (ou 3 no n8n): Telefone (ex: 22998205870)
-                        // Linha 3 (ou 4 no n8n): E-mail (ex: tioninja14@gmail.com)
-                        // Linha 4 (ou 5 no n8n): ID (ex: 1318)
-                        // Linha 5+ (ou 6 no n8n): Dados
                         const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
                         
                         let uNome = '';
@@ -603,7 +602,6 @@
                         let uId = '';
                         let uDados = '';
 
-                        // Procura pela linha de e-mail (contém @) para garantir flexibilidade total
                         let emailIdx = lines.findIndex(l => l.includes('@'));
                         if (emailIdx !== -1) {
                             uEmail = lines[emailIdx].toLowerCase();
@@ -621,7 +619,6 @@
                             if (lines.length >= 5) uId = lines[4];
                         }
 
-                        // Extrair uDados procurando diretamente o início da estrutura JSON ([ ou {)
                         const startBracket = text.indexOf('[');
                         const startBrace = text.indexOf('{');
                         let jsonStart = -1;
@@ -635,19 +632,16 @@
                             uDados = lines.slice(5).join('\n');
                         }
 
-                        // Proteção extra: se por algum motivo o Nome for uma sequência de números (telefone), corrige a inversão
                         if (/^\d+$/.test(uNome)) {
                             if (!uTelefone || /^\d+$/.test(uTelefone)) uTelefone = uNome;
                             uNome = '';
                         }
 
-                        // Extrair apenas o Primeiro Nome para saudações amigáveis
                         let uPrimeiroNome = uNome ? uNome.split(' ')[0] : '';
                         if (uPrimeiroNome) {
                             uPrimeiroNome = uPrimeiroNome.charAt(0).toUpperCase() + uPrimeiroNome.slice(1).toLowerCase();
                         }
 
-                        // Salvar sessão completa no localStorage
                         if (uNome) localStorage.setItem('usuario_nome', uNome);
                         if (uPrimeiroNome) localStorage.setItem('usuario_primeiro_nome', uPrimeiroNome);
                         if (uTelefone) localStorage.setItem('usuario_telefone', uTelefone);
@@ -658,9 +652,7 @@
                         if (uId) localStorage.setItem('usuario_id', uId);
                         if (uDados) localStorage.setItem('usuario_dados', uDados);
 
-                        setTimeout(() => {
-                            window.location.href = 'area_aluno.html';
-                        }, 1000);
+                        window.location.href = 'area_aluno.html';
                     } else if (respText.includes('senha incorreta')) {
                         showLoginError('Senha incorreta. Por favor, verifique sua senha e tente novamente.');
                         btnSubmit.disabled = false;
@@ -680,9 +672,9 @@
                     }
                 } catch (err) {
                     console.error('Erro de requisição login:', err);
-                    localStorage.setItem('usuario_email', username.toLowerCase());
-                    localStorage.setItem('email_conta', username.toLowerCase());
-                    window.location.href = 'area_aluno.html';
+                    showLoginError('Erro de conexão ao servidor de autenticação.');
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = 'Entrar no Sistema';
                 }
             });
         }
