@@ -203,6 +203,40 @@
             color: #94a3b8;
         }
 
+        .input-password-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .input-password-wrapper input {
+            padding-right: 85px;
+        }
+
+        .btn-toggle-pass {
+            position: absolute;
+            right: 8px;
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            cursor: pointer;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: background 0.2s;
+        }
+
+        .btn-toggle-pass:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
         /* Borda de Erro no Input */
         .form-control.is-invalid {
             border-color: #ef4444 !important;
@@ -391,7 +425,12 @@
 
             <div class="form-group">
                 <label for="passwordInput">Senha</label>
-                <input type="password" id="passwordInput" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                <div class="input-password-wrapper">
+                    <input type="password" id="passwordInput" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+                    <button type="button" class="btn-toggle-pass" id="btnTogglePassLogin">
+                        <i data-lucide="eye"></i> Ver
+                    </button>
+                </div>
             </div>
 
             <div class="form-options">
@@ -489,6 +528,18 @@
         const loginErrorMsg = document.getElementById('login-error-msg');
         const loginErrorText = document.getElementById('login-error-text');
 
+        const btnTogglePass = document.getElementById('btnTogglePassLogin');
+        if (btnTogglePass && passwordInput) {
+            btnTogglePass.addEventListener('click', () => {
+                const isPass = passwordInput.type === 'password';
+                passwordInput.type = isPass ? 'text' : 'password';
+                btnTogglePass.innerHTML = isPass 
+                    ? '<i data-lucide="eye-off"></i> Ocultar' 
+                    : '<i data-lucide="eye"></i> Ver';
+                if (window.lucide) lucide.createIcons();
+            });
+        }
+
         function showLoginError(message) {
             if (loginErrorMsg && loginErrorText) {
                 loginErrorText.textContent = message;
@@ -536,8 +587,37 @@
                         btnSubmit.textContent = 'Sucesso! Entrando...';
                         btnSubmit.style.background = '#10b981';
 
-                        localStorage.setItem('usuario_email', username.toLowerCase());
-                        localStorage.setItem('email_conta', username.toLowerCase());
+                        // Processamento das linhas de resposta do Webhook n8n
+                        const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+                        
+                        let uNome = '';
+                        let uTelefone = '';
+                        let uEmail = username.toLowerCase();
+                        let uId = '';
+                        let uDados = '';
+
+                        if (lines.length >= 3 && lines[2]) uNome = lines[2];
+                        if (lines.length >= 4 && lines[3]) uTelefone = lines[3];
+                        if (lines.length >= 5 && lines[4] && lines[4].includes('@')) uEmail = lines[4].toLowerCase();
+                        if (lines.length >= 6 && lines[5]) uId = lines[5];
+                        if (lines.length >= 7) uDados = lines.slice(6).join('\n');
+
+                        // Extrair apenas o Primeiro Nome para saudações amigáveis
+                        let uPrimeiroNome = uNome ? uNome.split(' ')[0] : '';
+                        if (uPrimeiroNome) {
+                            uPrimeiroNome = uPrimeiroNome.charAt(0).toUpperCase() + uPrimeiroNome.slice(1).toLowerCase();
+                        }
+
+                        // Salvar sessão completa no localStorage
+                        if (uNome) localStorage.setItem('usuario_nome', uNome);
+                        if (uPrimeiroNome) localStorage.setItem('usuario_primeiro_nome', uPrimeiroNome);
+                        if (uTelefone) localStorage.setItem('usuario_telefone', uTelefone);
+                        if (uEmail) {
+                            localStorage.setItem('usuario_email', uEmail);
+                            localStorage.setItem('email_conta', uEmail);
+                        }
+                        if (uId) localStorage.setItem('usuario_id', uId);
+                        if (uDados) localStorage.setItem('usuario_dados', uDados);
 
                         setTimeout(() => {
                             window.location.href = 'area_aluno.html';

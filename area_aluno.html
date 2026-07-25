@@ -21,7 +21,7 @@
       --ib-font: Inter, "Segoe UI", Roboto, Arial, sans-serif;
     }
     *,*::before,*::after{box-sizing:border-box}
-    html,body{margin:0;padding:0}
+    html,body{margin:0;padding:0;overflow-x:hidden;width:100%;}
     body{
       font-family:var(--ib-font);
       background:
@@ -49,15 +49,15 @@
       border-radius: 24px; background: #fff; border: 1px solid #e2e8f0;
       box-shadow: 0 12px 30px rgba(6,78,59,.03);
     }
-    .al-ui-clean .al-empty { text-align: center; padding: 50px 20px; }
+    .al-ui-clean .al-empty { text-align: center; padding: 40px 20px; }
     .al-ui-clean .al-empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.8; }
     .al-ui-clean .al-empty p { color: #64748b; font-size: 16px; font-weight: 500; margin-bottom: 24px; }
     .al-ui-clean .al-btn {
       display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 14px 32px; border-radius: 16px; font-weight: 800; text-decoration: none;
-      cursor: pointer; transition: all .2s ease-in-out; font-size: 15px;
+      padding: 14px 28px; border-radius: 16px; font-weight: 800; text-decoration: none;
+      cursor: pointer; transition: all .2s ease-in-out; font-size: 15px; border: none;
     }
-    .al-ui-clean .al-btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); }
+    .al-ui-clean .al-btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); }
     .al-ui-clean .al-btn-primary:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
     .al-ui-clean .al-intro { margin-bottom: 22px; }
     .al-ui-clean .al-intro h2 { font-size: 26px; font-weight: 900; color: #064e3b; margin: 0 0 6px; letter-spacing: -.02em; }
@@ -118,19 +118,15 @@
     }
     .al-topbar-logout:hover { border-color: #a7f3d0; background: #ecfdf5; color: #10b981; }
 
-    /* Modal de avatar */
-    .al-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-    .al-modal { background: #fff; width: 100%; max-width: 420px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); font-family: Inter, Arial, sans-serif; }
-    .al-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 18px; color: #064e3b; }
+    /* Modais */
+    .al-modal-overlay { position: fixed; inset: 0; background: rgba(15,23,42,0.6); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(4px); padding: 16px; }
+    .al-modal { background: #fff; width: 100%; max-width: 480px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); font-family: Inter, Arial, sans-serif; max-height: 90vh; overflow-y: auto; }
+    .al-modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-size: 18px; color: #064e3b; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; }
     .al-modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #64748b; padding: 0; }
     .al-upload-area { border: 2px dashed #cbd5e1; border-radius: 16px; padding: 30px 20px; text-align: center; background: #f8fafc; }
     .al-btn-tb { display: inline-flex; align-items: center; justify-content: center; padding: 14px 32px; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 6px 14px rgba(16, 185, 129, 0.2); }
     .al-btn-tb:hover { background: linear-gradient(135deg, #059669, #047857); transform: translateY(-1px); }
-    html, body {
-      overflow-x: hidden;
-      width: 100%;
-    }
-
+    
     @media (max-width: 768px) { .al-topbar { padding: 12px 16px; } .al-main{padding:20px 16px 28px} }
     @media (max-width: 520px) {
       .al-topbar { padding: 10px 12px; }
@@ -165,6 +161,7 @@
     </div>
   </div>
 
+  <!-- Modal Foto de Perfil -->
   <div class="al-modal-overlay" id="avatarModalOverlay" onclick="closeAvatarModal()" style="display:none">
     <div class="al-modal" onclick="event.stopPropagation()">
       <div class="al-modal-header">
@@ -186,6 +183,19 @@
     </div>
   </div>
 
+  <!-- Modal Ficha de Dados do Aluno -->
+  <div class="al-modal-overlay" id="dadosModalOverlay" onclick="closeDadosModal()" style="display:none">
+    <div class="al-modal" onclick="event.stopPropagation()">
+      <div class="al-modal-header">
+        <strong><i data-lucide="file-text"></i> Meus Dados Cadastrados</strong>
+        <button type="button" class="al-modal-close" onclick="closeDadosModal()">×</button>
+      </div>
+      <div class="al-modal-body" id="dadosModalContent">
+        <!-- Preenchido via JS -->
+      </div>
+    </div>
+  </div>
+
   <main class="al-main">
     <div class="al-ui-clean">
 
@@ -199,8 +209,14 @@
         <div class="al-card">
           <div class="al-empty">
             <div class="al-empty-icon">🎓</div>
-            <p>A matrícula é para se tornar aluno(a) de um projeto.</p>
-            <a href="matricula.html" class="al-btn al-btn-primary">Fazer minha matrícula</a>
+            <p>Gerencie sua matrícula de aluno ou consulte seus dados cadastrados.</p>
+            
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+              <a href="matricula.html" class="al-btn al-btn-primary">Fazer minha matrícula</a>
+              <button type="button" class="al-btn" style="background:#0f172a;color:#fff;box-shadow: 0 6px 14px rgba(15,23,42,0.15);" onclick="buscarEMostrarMatricula()">
+                <i data-lucide="file-text"></i> Consultar Meus Dados
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -213,8 +229,12 @@
   </footer>
 
   <script>
+    if (window.lucide) { lucide.createIcons(); }
+
     function openAvatarModal()  { document.getElementById('avatarModalOverlay').style.display = 'flex'; }
     function closeAvatarModal() { document.getElementById('avatarModalOverlay').style.display = 'none'; }
+    
+    function closeDadosModal()  { document.getElementById('dadosModalOverlay').style.display = 'none'; }
 
     function sanitizeText(str) {
       if (!str) return '';
@@ -224,12 +244,14 @@
     }
 
     const userName = localStorage.getItem('usuario_nome') || '';
+    const userPrimeiroNome = localStorage.getItem('usuario_primeiro_nome') || '';
     const userEmail = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
 
-    let rawStr = userName.trim() || userEmail.split('@')[0] || 'Participante';
-    let firstName = rawStr.split(' ')[0];
+    let firstName = userPrimeiroNome || (userName.trim() ? userName.trim().split(' ')[0] : userEmail.split('@')[0]);
     if (firstName) {
       firstName = firstName.charAt(0).toUpperCase() + firstName.slice(1).toLowerCase();
+    } else {
+      firstName = 'Participante';
     }
     firstName = sanitizeText(firstName);
 
@@ -239,7 +261,6 @@
     const firstLetter = firstName.charAt(0).toUpperCase() || 'P';
     const avatarEl = document.getElementById('display-avatar-icon');
     
-    // Verificar se existe foto salva no localStorage
     const savedAvatar = localStorage.getItem('avatar_base64');
     if (savedAvatar) {
       avatarEl.innerHTML = `<img src="${savedAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
@@ -263,10 +284,69 @@
       }
     }
 
+    async function buscarEMostrarMatricula() {
+      const email = localStorage.getItem('usuario_email') || localStorage.getItem('email_conta') || '';
+      const id = localStorage.getItem('usuario_id') || '';
+      const modal = document.getElementById('dadosModalOverlay');
+      const bodyEl = document.getElementById('dadosModalContent');
+      
+      modal.style.display = 'flex';
+      bodyEl.innerHTML = '<div style="text-align:center;padding:30px;"><div style="font-size:16px;font-weight:700;color:#059669;">Buscando suas informações...</div></div>';
+
+      // Exibir prévia se já existirem dados em cache no localStorage
+      const localDados = localStorage.getItem('usuario_dados');
+      if (localDados) {
+        renderizarDados(localDados);
+      }
+
+      try {
+        const url = `https://w.ibrase.com.br/webhook/buscarmatricula?email=${encodeURIComponent(email)}&id=${encodeURIComponent(id)}`;
+        const res = await fetch(url);
+        const text = await res.text();
+        if (text && text.trim().length > 0) {
+          localStorage.setItem('usuario_dados', text.trim());
+          renderizarDados(text.trim());
+        }
+      } catch (err) {
+        console.error('Erro ao buscar dados da matrícula:', err);
+        if (!localDados) {
+          bodyEl.innerHTML = '<div style="color:#ef4444;text-align:center;padding:20px;font-weight:600;">Não foi possível carregar os dados no momento. Tente novamente mais tarde.</div>';
+        }
+      }
+    }
+
+    function renderizarDados(rawText) {
+      const bodyEl = document.getElementById('dadosModalContent');
+      let html = '';
+      
+      try {
+        const json = JSON.parse(rawText);
+        html += '<div style="display:flex;flex-direction:column;gap:10px;">';
+        for (let key in json) {
+          if (json[key]) {
+            let labelKey = key.replace(/_/g, ' ').toUpperCase();
+            html += `<div style="padding:10px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+              <span style="font-size:11px;font-weight:800;color:#64748b;display:block;margin-bottom:2px;">${labelKey}</span>
+              <span style="font-size:14.5px;font-weight:700;color:#0f172a;">${json[key]}</span>
+            </div>`;
+          }
+        }
+        html += '</div>';
+      } catch(e) {
+        const formattedLines = rawText.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+        html += '<div style="display:flex;flex-direction:column;gap:8px;">';
+        formattedLines.forEach(line => {
+          html += `<div style="padding:12px 14px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;font-size:14px;font-weight:700;color:#0f172a;">${sanitizeText(line)}</div>`;
+        });
+        html += '</div>';
+      }
+      
+      bodyEl.innerHTML = html;
+      if (window.lucide) lucide.createIcons();
+    }
+
     function logout() {
-      localStorage.removeItem('usuario_email');
-      localStorage.removeItem('usuario_nome');
-      localStorage.removeItem('email_conta');
+      localStorage.clear();
       window.location.href = 'login.html';
     }
   </script>
