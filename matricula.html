@@ -5,9 +5,10 @@
     <title>Matrícula de Aluno — INTEGRA</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <!-- Favicon & Ícone da Aba -->
-    <link rel="icon" type="image/png" href="logo_integra.png">
-    <link rel="shortcut icon" type="image/png" href="logo_integra.png">
-    <link rel="apple-touch-icon" href="logo_integra.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png?v=3">
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico?v=3">
+    <link rel="apple-touch-icon" href="favicon-192.png?v=3">
 
     <!-- Meta Tags para Pré-visualização do Link no WhatsApp, Telegram e Redes Sociais -->
     <meta name="description" content="Formulário de Matrícula Online - INTEGRA Plataforma Unificada">
@@ -16,7 +17,39 @@
     <meta property="og:image" content="https://portalintegra.com.br/logo_integra.png">
     <meta property="og:url" content="https://portalintegra.com.br/matricula">
     <meta property="og:type" content="website">
-    <style>
+    <script>
+    window.carregarCidadesIBGENaturalidade = function(uf) {
+        var selectCid = document.getElementById('naturalidade_cidade');
+        var inputNat = document.getElementById('naturalidade');
+        if (!selectCid) return;
+        if (!uf) {
+            selectCid.innerHTML = '<option value="">Selecione a UF primeiro</option>';
+            selectCid.disabled = true;
+            if (inputNat) inputNat.value = '';
+            return;
+        }
+        selectCid.innerHTML = '<option value="">Carregando cidades do IBGE...</option>';
+        selectCid.disabled = true;
+        
+        fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + uf + '/municipios?orderBy=nome')
+            .then(function(r) { return r.json(); })
+            .then(function(cidades) {
+                selectCid.innerHTML = '<option value="">Selecione a cidade</option>';
+                cidades.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.nome + ' - ' + uf;
+                    opt.textContent = c.nome;
+                    selectCid.appendChild(opt);
+                });
+                selectCid.disabled = false;
+            })
+            .catch(function() {
+                selectCid.innerHTML = '<option value="">Digite a cidade manualmente</option>';
+                selectCid.disabled = false;
+            });
+    };
+</script>
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
         
         :root {
@@ -42,6 +75,12 @@
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            overflow-x: hidden !important;
         }
 
         body {
@@ -383,21 +422,22 @@
         }
 
         .nav-buttons {
-            display: flex;
+            display: flex !important;
             gap: 10px;
             margin-top: 24px;
             border-top: 1px solid #e2e8f0;
             padding-top: 20px;
+            width: 100%;
         }
         .btn-back {
             flex: 1;
             background: #fff;
-            border: 1.5px solid #e2e8f0;
-            color: #64748b;
+            border: 1.5px solid #cbd5e1;
+            color: #475569;
             border-radius: 10px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 600;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -412,23 +452,24 @@
         }
         .btn-next, .btn-submit {
             flex: 2;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
-            border: none;
-            color: #ffffff;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+            border: none !important;
+            color: #ffffff !important;
             border-radius: 10px;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: 700;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
+            gap: 8px;
             transition: var(--transition-smooth);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            min-height: 48px;
         }
         .btn-next:hover, .btn-submit:hover {
-            box-shadow: 0 6px 15px var(--primary-glow);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
             transform: translateY(-1px);
         }
         .btn-next:disabled {
@@ -525,18 +566,29 @@
         .modalidade-card.active, .nucleo-card.active, .turno-card.active {
             border-color: var(--primary);
             background: #ecfdf5;
-            color: var(--primary);
+            color: #1e293b !important;
+        }
+        .modalidade-card.active *, .nucleo-card.active *, .turno-card.active * {
+            color: #1e293b !important;
+        }
+        .modalidade-card.active .projeto-name, .nucleo-card.active div {
+            color: #059669 !important;
         }
 
         .wizard-greeting-wrap {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 14px;
-            background: #ecfdf5;
-            border: 1px dashed #a7f3d0;
-            border-radius: 12px;
+            text-align: left;
+            margin-top: 10px;
+            margin-bottom: 12px;
+            padding: 0;
+            background: transparent;
+            border: none;
         }
         .wizard-greeting-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #065f46;
+            margin-bottom: 2px;
+        }
             font-size: 20px;
             font-weight: 800;
             color: #059669;
@@ -548,21 +600,40 @@
         }
 
         #cpf-loading {
-            position: absolute;
-            inset: 0;
-            background: rgba(255, 255, 255, 0.92);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.65);
             backdrop-filter: blur(6px);
-            z-index: 100;
+            -webkit-backdrop-filter: blur(6px);
+            z-index: 99999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        #cpf-loading.active {
+            display: flex !important;
+        }
+        .cpf-loading-box {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            gap: 16px;
-            border-radius: 20px;
-            display: none;
+            gap: 14px;
+            animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        #cpf-loading.active {
-            display: flex;
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.85); }
+            100% { opacity: 1; transform: scale(1); }
         }
         
         .cpf-spinner {
@@ -735,17 +806,127 @@
             border: 1px solid #e2e8f0;
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 600px) {
+            html, body {
+                min-height: 100vh;
+                min-height: 100dvh;
+            }
+            body {
+                padding: 12px 10px;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+            }
             .login-card {
                 padding: 20px 16px;
+                border-radius: 16px;
+                margin: auto 0;
+                width: 100%;
+                max-width: 480px;
+            }
+            .logo-partnership img {
+                max-height: 44px !important;
+            }
+            .login-title {
+                font-size: 20px !important;
+                margin-bottom: 2px;
+            }
+            .login-sub {
+                font-size: 13px !important;
+                margin-bottom: 16px;
             }
             .progress-container {
-                margin-bottom: 20px;
+                margin-bottom: 18px;
             }
             .field-row {
                 flex-direction: column;
                 gap: 12px;
             }
+        }
+
+        /* Toast Notifications Minimalistas */
+        #toast-container {
+            position: fixed;
+            top: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            pointer-events: none;
+            width: calc(100% - 32px);
+            max-width: 480px;
+        }
+
+        .toast {
+            pointer-events: auto;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            padding: 12px 18px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 500;
+            line-height: 1.4;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 2px 6px rgba(0, 0, 0, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            animation: toastSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: all 0.3s ease;
+        }
+
+        @keyframes toastSlideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .toast.success {
+            background: rgba(16, 185, 129, 0.95);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast.error {
+            background: rgba(225, 29, 72, 0.95);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast.info {
+            background: rgba(15, 23, 42, 0.92);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .toast-text {
+            flex: 1;
+        }
+
+        .toast-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 2px 6px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
     </style>
     
@@ -787,21 +968,23 @@
     <div class="blob blob-2"></div>
 
     <div id="cpf-loading">
-        <div class="cpf-spinner"></div>
-        <div class="cpf-loading-text" id="cpf-loading-text">Buscando CPF...</div>
-        <div class="cpf-progress-wrap">
-            <div class="cpf-progress-bar" id="cpf-progress-bar"></div>
-        </div>
-        <div class="cpf-retry-badge" id="cpf-retry-badge" style="display:none;font-size:12px;color:var(--text-muted);">
-            Tentativa <span id="cpf-tentativa">1</span>... <span id="cpf-timer-seg">15</span>s
+        <div class="cpf-loading-box">
+            <div class="cpf-spinner"></div>
+            <div class="cpf-loading-text" id="cpf-loading-text">Buscando CPF...</div>
+            <div class="cpf-progress-wrap">
+                <div class="cpf-progress-bar" id="cpf-progress-bar"></div>
+            </div>
+            <div class="cpf-retry-badge" id="cpf-retry-badge" style="display:none;font-size:12px;color:var(--text-muted);">
+                Tentativa <span id="cpf-tentativa">1</span>... <span id="cpf-timer-seg">15</span>s
+            </div>
         </div>
     </div>
 
     <div class="login-card">
         <div class="logo-partnership">
-            <img src="logo_integra.png" onerror="this.onerror=null; this.src='http://3.141.142.62:8000/storage/v1/object/public/INTEGRA/logo_integra.png';" alt="INTEGRA" style="max-height: 55px; width: auto; border-radius:8px;">
+            <img src="logo_integra_simbolo.gif" onerror="this.onerror=null; this.src='logo_integra.png';" alt="INTEGRA" style="max-height: 55px; width: auto; border-radius:8px;">
             <span class="logo-separator">×</span>
-            <img src="http://3.141.142.62:8000/storage/v1/object/public/GASCTPNA/logo%20com%20fundo%20branco.jpg" alt="GASCTPNA" style="max-height: 55px; width: auto; border-radius:8px;">
+            <img src="logo_gasctpna.jpg" onerror="this.onerror=null; this.src='logo_integra.png';" alt="GASCTPNA" style="max-height: 55px; width: auto; border-radius:8px;">
         </div>
         <div class="login-title">Matrícula Online</div>
         <div class="login-sub">Ficha de matrícula simplificada</div>
@@ -816,16 +999,20 @@
             <div class="progress-step" data-group="5" title="Enviar"><i data-lucide="check"></i></div>
         </div>
 
-        <form id="form-matricula" action="https://w.ibrase.com.br/webhook/matricula" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
+        <form id="form-matricula" action="#" method="post" enctype="multipart/form-data" autocomplete="off" novalidate>
             <input type="hidden" name="instituicao"            value="GASCTPNA">
+            <input type="hidden" name="instituto"              value="GASCTPNA">
             <input type="hidden" name="acao"                   value="salvar_matricula">
-<input type="hidden" id="lgpd_aceite"              name="lgpd_aceite"              value="0">
-<input type="hidden" id="lgpd_aceite_em"           name="lgpd_aceite_em"           value="">
-<input type="hidden" id="lgpd_versao"              name="lgpd_versao"              value="v1">
-<input type="hidden" id="aceite_veracidade"        name="aceite_veracidade"        value="0">
-<input type="hidden" id="aceite_veracidade_em"     name="aceite_veracidade_em"     value="">
+            <input type="hidden" id="numero_matricula"         name="numero_matricula"         value="">
+            <input type="hidden" id="lgpd_aceite"              name="lgpd_aceite"              value="0">
+            <input type="hidden" id="lgpd_aceite_em"           name="lgpd_aceite_em"           value="">
+            <input type="hidden" id="lgpd_versao"              name="lgpd_versao"              value="v3">
+            <input type="hidden" id="aceite_veracidade"        name="aceite_veracidade"        value="0">
+            <input type="hidden" id="aceite_veracidade_em"     name="aceite_veracidade_em"     value="">
+            <input type="hidden" id="aceite_veracidade_versao" name="aceite_veracidade_versao" value="v3">
 <input type="hidden" id="projeto_nome"             name="projeto_nome"             value="">
 <input type="hidden" id="email_conta"              name="email_conta"              value="">
+<input type="hidden" id="telefone_conta"           name="telefone_conta"           value="">
 <input type="hidden" name="origem_cadastro"        value="Portal do Aluno">
 
 <!-- Step 1: CPF -->
@@ -1035,12 +1222,12 @@
                     <div class="field-row">
                         <div class="field-group">
                             <label for="altura">Altura (cm) <span class="req">*</span></label>
-                            <input type="number" id="altura" name="altura" min="30" max="250" step="1" required placeholder="Ex.: 170">
+                            <input type="number" id="altura" name="altura" min="50" max="250" step="1" required placeholder="Ex.: 170">
                             <div class="hint">Informe sua altura em centímetros. Exemplo: 165</div>
                         </div>
                         <div class="field-group">
                             <label for="peso">Peso (kg) <span class="req">*</span></label>
-                            <input type="number" id="peso" name="peso" min="1" max="400" step="0.1" required placeholder="Ex.: 62.5">
+                            <input type="number" id="peso" name="peso" min="15" max="250" step="0.1" required placeholder="Ex.: 62.5">
                             <div class="hint">Informe seu peso em quilogramas. Exemplo: 58.0</div>
                         </div>
                         <div class="field-group">
@@ -1066,6 +1253,7 @@
                                 <option value="14">14 (Infantil)</option>
                                 <option value="M">M (Adulto)</option>
                                 <option value="GG">GG (Adulto)</option>
+                                <option value="G2">G2 (Adulto)</option>
                             </select>
                             <div class="hint">Tamanho da camisa do uniforme.</div>
                         </div>
@@ -1091,9 +1279,9 @@
                     <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em;">👤 Identificação Pessoal</div>
                     <div class="field-row">
                         <div class="field-group">
-                            <label>Raça / Cor</label>
-                            <select name="raca">
-                                <option value="">Selecione</option>
+                            <label for="raca">Raça / Cor <span class="req">*</span></label>
+                            <select name="raca" id="raca" required>
+                                <option value="">Selecione…</option>
                                 <option value="Negra">Negra</option>
                                 <option value="Branca">Branca</option>
                                 <option value="Parda">Parda</option>
@@ -1103,19 +1291,36 @@
                         </div>
                     </div>
 
-                    <div class="field-group">
-                        <label for="naturalidade">Naturalidade</label>
-                        <input type="text" name="naturalidade" id="naturalidade" placeholder="Ex.: Niterói - RJ"
-                               list="lista-naturalidade" autocomplete="new-password">
-                        <datalist id="lista-naturalidade"></datalist>
-                        <div class="hint">Informe a cidade onde o aluno nasceu. Comece a digitar para ver sugestões.</div>
+                    <div class="field-row">
+                        <div class="field-group" style="flex:1;">
+                            <label for="naturalidade_uf">UF de Nascimento <span class="req">*</span></label>
+                            <select id="naturalidade_uf" required onchange="if(window.carregarCidadesIBGENaturalidade) window.carregarCidadesIBGENaturalidade(this.value);">
+                                <option value="">Selecione a UF</option>
+                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
+                                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                            </select>
+                        </div>
+                        <div class="field-group" style="flex:2;">
+                            <label for="naturalidade_cidade">Cidade de Nascimento (Naturalidade) <span class="req">*</span></label>
+                            <select id="naturalidade_cidade" required onchange="document.getElementById('naturalidade').value=this.value;" disabled>
+                                <option value="">Selecione a UF primeiro</option>
+                            </select>
+                            <input type="hidden" name="naturalidade" id="naturalidade" value="">
+                        </div>
                     </div>
 
                     <div class="field-row">
                         <div class="field-group">
-                            <label>Escolaridade</label>
-                            <select name="escolaridade">
-                                <option value="">Selecione</option>
+                            <label for="escolaridade">Escolaridade <span class="req">*</span></label>
+                            <select name="escolaridade" id="escolaridade" required>
+                                <option value="">Selecione…</option>
                                 <option value="Ensino Fundamental">Ensino Fundamental (1º ao 9º ano)</option>
                                 <option value="Ensino Médio">Ensino Médio (1ª à 3ª série)</option>
                                 <option value="Graduacao">Ensino Superior / Graduação</option>
@@ -1137,66 +1342,65 @@
         <!-- Endereço -->
         <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border);">
             <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:12px;text-transform:uppercase;letter-spacing:.04em;">📍 Endereço</div>
-            <div class="field-row">
-                <div class="field-group" style="flex:0 0 140px;">
-                    <label>CEP <span class="req">*</span></label>
+            <div class="field-row" style="display:flex;gap:10px;margin-bottom:10px;">
+                <div class="field-group" style="flex:0 0 130px;">
+                    <label style="margin-bottom:4px;">CEP <span class="req">*</span></label>
                     <input type="text" name="cep" id="cep" maxlength="9" placeholder="00000-000"
                            inputmode="numeric" onblur="buscarCEP(this.value);" required>
                 </div>
-                <div class="field-group">
-                    <label>Logradouro (Rua / Av.) <span class="req">*</span></label>
-                    <input type="text" name="endereco" id="endereco" required>
+                <div class="field-group" style="flex:1;">
+                    <label style="margin-bottom:4px;">Logradouro (Rua / Av.) <span class="req">*</span></label>
+                    <input type="text" name="endereco" id="endereco" required placeholder="Preenchido via CEP">
                 </div>
             </div>
-            <div class="field-row">
-                <div class="field-group" style="flex:0 0 100px;">
-                    <label>Número <span class="req">*</span></label>
-                    <input type="text" name="numero" required>
+            <div class="field-row" style="display:flex;gap:10px;margin-bottom:10px;">
+                <div class="field-group" style="flex:0 0 90px;">
+                    <label style="margin-bottom:4px;">Número <span class="req">*</span></label>
+                    <input type="text" name="numero" id="numero" required placeholder="Nº">
                 </div>
-                <div class="field-group">
-                    <label>Complemento</label>
-                    <input type="text" name="complemento" placeholder="Apto, Bloco…">
+                <div class="field-group" style="flex:1;">
+                    <label style="margin-bottom:4px;">Complemento</label>
+                    <input type="text" name="complemento" id="complemento" placeholder="Apto, Bloco…">
                 </div>
-                <div class="field-group">
-                    <label>Bairro <span class="req">*</span></label>
-                    <input type="text" name="bairro" required>
+                <div class="field-group" style="flex:1.2;">
+                    <label style="margin-bottom:4px;">Bairro <span class="req">*</span></label>
+                    <input type="text" name="bairro" id="bairro" required placeholder="Preenchido via CEP">
                 </div>
             </div>
-            <div class="field-row">
-                <div class="field-group">
-                    <label>Cidade <span class="req">*</span></label>
-                    <input type="text" name="cidade" required>
+            <div class="field-row" style="display:flex;gap:10px;margin-bottom:10px;">
+                <div class="field-group" style="flex:1;">
+                    <label style="margin-bottom:4px;">Cidade <span class="req">*</span></label>
+                    <input type="text" name="cidade" id="cidade" required placeholder="Preenchido via CEP">
                 </div>
-                <div class="field-group" style="flex:0 0 70px;">
-                    <label>UF <span class="req">*</span></label>
-                    <input type="text" name="uf" maxlength="2" required>
+                <div class="field-group" style="flex:0 0 80px;">
+                    <label style="margin-bottom:4px;">UF <span class="req">*</span></label>
+                    <input type="text" name="uf" id="uf" maxlength="2" required placeholder="UF" style="text-transform:uppercase;">
                 </div>
             </div>
         </div>
 
-        <!-- Faixa salarial -->
+        <!-- Faixa salarial / Renda mensal -->
         <div style="margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border);">
-            <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">💰 Renda Familiar</div>
+            <div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;">💰 Qual é a sua faixa de renda mensal? <span class="req">*</span></div>
             <div class="hint info" style="margin-bottom:10px;">
-                <strong>O que é renda familiar?</strong><br>
-                É a soma de todos os rendimentos mensais dos moradores da sua casa (salários, aposentadorias, bolsas, pensões etc.).
+                Selecione a faixa de renda mensal familiar de todos os moradores da sua residência.
             </div>
             <div class="faixa-opcoes">
                 <label>
-                    <input type="radio" name="faixa_salarial[]" value="Até 1 SM">
-                    <span>Até 1 Salário Mínimo</span>
+                    <input type="radio" name="faixa_salarial" value="Sem rendimento / Não remunerado(a)" required>
+                    <span>Sem rendimento / Não remunerado(a)</span>
                 </label>
                 <label>
-                    <input type="radio" name="faixa_salarial[]" value="De 1SM a 3SM">
-                    <span>De 1 a 3 Salários Mínimos</span>
+                    <input type="radio" name="faixa_salarial" value="Até 1 salário mínimo" required>
+                    <span>Até 1 salário mínimo</span>
                 </label>
                 <label>
-                    <input type="radio" name="faixa_salarial[]" value="De 3SM a 5SM">
-                    <span>De 3 a 5 Salários Mínimos</span>
+                    <input type="radio" name="faixa_salarial" value="Acima de 1 até 3 salários mínimos" required>
+                    <span>Acima de 1 até 3 salários mínimos</span>
                 </label>
                 <label>
-                    <input type="radio" name="faixa_salarial[]" value="Acima de 5SM">
-                    <span>Acima de 5 Salários Mínimos</span>
+                    <input type="radio" name="faixa_salarial" value="Acima de 3 salários mínimos" required>
+                    <span>Acima de 3 salários mínimos</span>
                 </label>
             </div>
         </div>
@@ -1285,8 +1489,15 @@
 
                 <div class="field-row">
                     <div class="field-group">
-                        <label>Nome social do Responsável (opcional)</label>
-                        <input type="text" name="resp_nome_social" id="resp_nome_social" placeholder="Como prefere ser chamado(a)">
+                        <label>Grau de Parentesco <span class="req">*</span></label>
+                        <select name="grau_parentesco" id="grau_parentesco" required>
+                            <option value="">Selecione…</option>
+                            <option value="Mãe">Mãe</option>
+                            <option value="Pai">Pai</option>
+                            <option value="Tutor(a) Legal">Tutor(a) Legal</option>
+                            <option value="Avô / Avó">Avô / Avó</option>
+                            <option value="Outro">Outro Responsável</option>
+                        </select>
                     </div>
                     <div class="field-group">
                         <label>Data de nascimento <span class="req">*</span></label>
@@ -1323,7 +1534,7 @@
                 <div class="field-row">
                     <div class="field-group">
                         <label>E-mail do Responsável</label>
-                        <input type="email" name="resp_email" placeholder="email@dominio.com">
+                        <input type="email" name="resp_email" id="resp_email" placeholder="email@dominio.com">
                     </div>
                     <div class="field-group">
                         <label>WhatsApp do Responsável <span class="req">*</span></label>
@@ -1390,7 +1601,7 @@
                     <div class="pergunta-titulo">1 — Faz uso de algum medicamento contínuo?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="uso_medicacao" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="uso_medicacao" value="Nao" required> Não</label>
+                        <label><input type="radio" name="uso_medicacao" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_uso_medicacao" class="pergunta-detalhe" style="display:none;">
                         <label>Qual(is) medicamento(s)? <span class="req">*</span></label>
@@ -1404,7 +1615,7 @@
                     <div class="pergunta-titulo">2 — Possui alergia a algum medicamento?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="possui_alergias" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="possui_alergias" value="Nao" required> Não</label>
+                        <label><input type="radio" name="possui_alergias" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_possui_alergias" class="pergunta-detalhe" style="display:none;">
                         <label>Qual(is) medicamento(s)? <span class="req">*</span></label>
@@ -1418,7 +1629,7 @@
                     <div class="pergunta-titulo">3 — Possui plano de saúde?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="plano_saude" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="plano_saude" value="Nao" required> Não</label>
+                        <label><input type="radio" name="plano_saude" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_plano_saude" class="pergunta-detalhe" style="display:none;">
                         <label>Qual o plano de saúde? <span class="req">*</span></label>
@@ -1432,7 +1643,7 @@
                     <div class="pergunta-titulo">4 — Faz algum acompanhamento ou tratamento médico regular?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="acompan_medico" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="acompan_medico" value="Nao" required> Não</label>
+                        <label><input type="radio" name="acompan_medico" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_acompan_medico" class="pergunta-detalhe" style="display:none;">
                         <label>Especifique o tratamento/acompanhamento: <span class="req">*</span></label>
@@ -1446,7 +1657,7 @@
                     <div class="pergunta-titulo">5 — Possui alguma restrição médica para prática de atividades físicas?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="restricao_fisica" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="restricao_fisica" value="Nao" required> Não</label>
+                        <label><input type="radio" name="restricao_fisica" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_restricao_fisica" class="pergunta-detalhe" style="display:none;">
                         <label>Especifique a restrição: <span class="req">*</span></label>
@@ -1460,7 +1671,7 @@
                     <div class="pergunta-titulo">6 — Possui alguma deficiência ou necessidade especial?</div>
                     <div class="radio-visual">
                         <label><input type="radio" name="necessidade_especial" value="Sim" required> Sim</label>
-                        <label><input type="radio" name="necessidade_especial" value="Nao" required> Não</label>
+                        <label><input type="radio" name="necessidade_especial" value="Nao" required checked> Não</label>
                     </div>
                     <div id="det_necessidade_especial" class="pergunta-detalhe" style="display:none;">
                         <label>Especifique a deficiência / necessidade: <span class="req">*</span></label>
@@ -1546,22 +1757,17 @@
                     <p>Leia a LGPD, confirme a veracidade e envie a matrícula.</p>
                 </div>
                 <div id="bloco-submit" style="margin-bottom:30px;">
-            <div class="veracidade-box">
-                <label>
-                    <input type="checkbox" id="chk_veracidade" required>
-                    <span>
-            <strong>Declaração de Veracidade</strong><br>
-            Declaro, sob as penas da lei, que todas as informações prestadas neste formulário são verdadeiras e estou ciente de que a omissão ou falsidade poderá implicar no cancelamento da matrícula e demais medidas cabíveis, conforme o ECA e a legislação vigente.
-          </span>
-                </label>
-            </div>
-            <button type="submit" class="btn-submit-final">
-                ✅ Concluir Matrícula
-            </button>
-        </div>
-
-    
-            </div>
+                    <div class="veracidade-box">
+                        <label>
+                            <input type="checkbox" id="chk_veracidade" required>
+                            <span>
+                                <strong>Declaração de Veracidade</strong><br>
+                                Declaro, sob as penas da lei, que todas as informações prestadas neste formulário são verdadeiras e estou ciente de que a omissão ou falsidade poderá implicar no cancelamento da matrícula e demais medidas cabíveis, conforme o ECA e a legislação vigente.
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div><!-- /Step 10 -->
             
             <!-- Navigation Footer -->
             <div class="nav-buttons">
@@ -1627,6 +1833,37 @@
         buscarNucleos:     'https://w.ibrase.com.br/webhook/buscarnucleo'
     };
 
+    window.carregarCidadesIBGENaturalidade = function(uf) {
+        var selectCid = document.getElementById('naturalidade_cidade');
+        var inputNat = document.getElementById('naturalidade');
+        if (!selectCid) return;
+        if (!uf) {
+            selectCid.innerHTML = '<option value="">Selecione a UF primeiro</option>';
+            selectCid.disabled = true;
+            if (inputNat) inputNat.value = '';
+            return;
+        }
+        selectCid.innerHTML = '<option value="">Carregando cidades do IBGE...</option>';
+        selectCid.disabled = true;
+        
+        fetch('https://servicodados.ibge.gov.br/api/v1/localidades/estados/' + uf + '/municipios?orderBy=nome')
+            .then(function(r) { return r.json(); })
+            .then(function(cidades) {
+                selectCid.innerHTML = '<option value="">Selecione a cidade</option>';
+                cidades.forEach(function(c) {
+                    var opt = document.createElement('option');
+                    opt.value = c.nome + ' - ' + uf;
+                    opt.textContent = c.nome;
+                    selectCid.appendChild(opt);
+                });
+                selectCid.disabled = false;
+            })
+            .catch(function() {
+                selectCid.innerHTML = '<option value="">Digite a cidade manualmente</option>';
+                selectCid.disabled = false;
+            });
+    };
+
     // Cache dos dados dos webhooks (carrega uma vez, filtra no front)
     var _cacheCidades = null;
     var _cacheBairros = null;
@@ -1637,15 +1874,21 @@
     var currentStep = 1;
     var totalSteps = 10;
     var alunoMenorDeIdade = false;
+window.projetosInscritosCPF = [];
+window.dadosRecentesCPF = null;
     var manualMode = false;
 
     function ativandoManual(el) {
         if(el) {
             el.readOnly = false;
+            el.disabled = false;
             el.removeAttribute('readonly');
-            el.style.backgroundColor = 'var(--input-bg)';
-            el.style.borderColor = 'var(--input-border)';
+            el.removeAttribute('disabled');
+            el.style.backgroundColor = '#ffffff';
+            el.style.borderColor = '#94a3b8';
             el.style.cursor = 'text';
+            el.style.opacity = '1';
+            el.style.pointerEvents = 'auto';
         }
     }
 
@@ -1715,10 +1958,10 @@
         var btnNext = document.getElementById('btnNext');
         var btnSubmit = document.getElementById('btnSubmit');
 
-        // No passo 1 (CPF), ocultamos todos os botões de navegação globais!
+        // No passo 1 (CPF), ocultamos apenas o botão voltar
         if (currentStep === 1) {
             btnBack.style.display = 'none';
-            btnNext.style.display = 'none';
+            btnNext.style.display = 'flex';
             btnSubmit.style.display = 'none';
         } else {
             btnBack.style.display = 'flex';
@@ -1746,6 +1989,29 @@
     function mostrarStep(stepNum) {
         currentStep = stepNum;
         updateStepVisibility();
+        
+        // Se entrou no Passo 2 e o Nome está vazio (CPF não localizado), libera preenchimento manual
+        if (stepNum === 2) {
+            var inputNome = document.getElementById('TextAreaNome');
+            if (inputNome && !inputNome.value.trim()) {
+                ativandoManual(inputNome);
+                ativandoManual(document.getElementById('TextDataNasc'));
+            }
+        }
+        
+        // Garantir que a Etapa 5 (Modalidade & Núcleo) carregue automaticamente sem precisar voltar
+        if (stepNum === 5) {
+            var blocoMod = document.getElementById('bloco-modalidade');
+            if (blocoMod) {
+                blocoMod.style.display = 'block';
+                setRequiredIn('bloco-modalidade', true);
+            }
+            var bInp = document.getElementById('bairro_id');
+            if (bInp && bInp.value) {
+                bInp.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }
+        
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
@@ -1754,20 +2020,44 @@
         if (!stepEl) return true;
         
         var isValid = true;
-        var inputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
         
+        // 1. Validar grupos de Radio Buttons obrigatórios (ex: Renda Mensal, Sexo, Saúde)
+        var radioGroups = {};
+        stepEl.querySelectorAll('input[type="radio"][required]').forEach(function(radio) {
+            if (radio.name) radioGroups[radio.name] = true;
+        });
+        for (var name in radioGroups) {
+            var checked = stepEl.querySelector('input[type="radio"][name="' + name + '"]:checked');
+            var firstRadio = stepEl.querySelector('input[name="' + name + '"]');
+            var groupWrap = firstRadio ? (firstRadio.closest('.pergunta-item, .form-group, .pergunta-opcoes') || firstRadio.parentNode) : null;
+            if (!checked) {
+                isValid = false;
+                if (groupWrap) groupWrap.style.border = '1.5px solid #ef4444';
+            } else {
+                if (groupWrap) groupWrap.style.border = '';
+            }
+        }
+
+        // 2. Validar inputs de texto, select e checkboxes obrigatórios
+        var inputs = stepEl.querySelectorAll('input[required], select[required], textarea[required]');
         inputs.forEach(function(input) {
+            if (input.type === 'radio') return;
             var isVisible = input.offsetWidth > 0 || input.offsetHeight > 0;
             if (isVisible) {
-                var value = input.value.trim();
-                if (input.id === 'cep' && value.replace(/\D/g, '').length < 8) {
-                    input.classList.add('invalid');
-                    isValid = false;
-                } else if (!value) {
+                if (input.type === 'checkbox' && !input.checked) {
                     input.classList.add('invalid');
                     isValid = false;
                 } else {
-                    input.classList.remove('invalid');
+                    var value = input.value.trim();
+                    if (input.id === 'cep' && value.replace(/\D/g, '').length < 8) {
+                        input.classList.add('invalid');
+                        isValid = false;
+                    } else if (!value) {
+                        input.classList.add('invalid');
+                        isValid = false;
+                    } else {
+                        input.classList.remove('invalid');
+                    }
                 }
             }
         });
@@ -1783,8 +2073,73 @@
                 document.getElementById('TextNumCPF').classList.remove('invalid');
             }
         }
+
+        // Validar explicitamente o Passo 4 antes de permitir ida para o Passo 5
+        if (step === 4) {
+            var elCid = document.getElementById('cidade_id');
+            var elBai = document.getElementById('bairro_id');
+            if (!elCid || !elCid.value || !elBai || !elBai.value) {
+                if (elCid && !elCid.value) elCid.classList.add('invalid');
+                if (elBai && !elBai.value) elBai.classList.add('invalid');
+                isValid = false;
+            } else {
+                if (elCid) elCid.classList.remove('invalid');
+                if (elBai) elBai.classList.remove('invalid');
+            }
+        }
+
+        var elAlt = document.getElementById('altura');
+        if (elAlt) {
+            var altVal = parseFloat(elAlt.value);
+            if (altVal && (altVal < 50 || altVal > 250)) {
+                elAlt.classList.add('invalid');
+                mostrarMensagem('erro', 'Altura inválida! Por favor, informe uma altura entre 50 cm e 250 cm.');
+                isValid = false;
+            }
+        }
+
+        var elPes = document.getElementById('peso');
+        if (elPes) {
+            var pesVal = parseFloat(elPes.value);
+            if (pesVal && (pesVal < 15 || pesVal > 250)) {
+                elPes.classList.add('invalid');
+                mostrarMensagem('erro', 'Peso inválido! Por favor, informe um peso entre 15 kg e 250 kg.');
+                isValid = false;
+            }
+        }
+
+        var elNomeManual = document.getElementById('TextAreaNome');
+        if (elNomeManual && (step === 2 || !elNomeManual.readOnly)) {
+            var nomeVal = (elNomeManual.value || '').trim();
+            var cleanNome = nomeVal.replace(/[0-9]/g, '');
+            if (cleanNome !== nomeVal) {
+                elNomeManual.value = cleanNome;
+                nomeVal = cleanNome;
+            }
+            if (nomeVal.length > 0 && (nomeVal.length < 5 || /[0-9]/.test(nomeVal))) {
+                elNomeManual.classList.add('invalid');
+                mostrarMensagem('erro', '⚠️ O nome do aluno deve conter apenas letras e no mínimo 5 caracteres.');
+                isValid = false;
+            }
+        }
+
+        var elRespNomeManual = document.getElementById('resp_nome');
+        if (elRespNomeManual && (step === 8 || (elRespNomeManual.offsetWidth > 0 && !elRespNomeManual.readOnly))) {
+            var respNomeVal = (elRespNomeManual.value || '').trim();
+            var cleanRespNome = respNomeVal.replace(/[0-9]/g, '');
+            if (cleanRespNome !== respNomeVal) {
+                elRespNomeManual.value = cleanRespNome;
+                respNomeVal = cleanRespNome;
+            }
+            if (respNomeVal.length > 0 && (respNomeVal.length < 5 || /[0-9]/.test(respNomeVal))) {
+                elRespNomeManual.classList.add('invalid');
+                mostrarMensagem('erro', '⚠️ O nome do responsável deve conter apenas letras e no mínimo 5 caracteres.');
+                isValid = false;
+            }
+        }
         
         if (!isValid) {
+            mostrarMensagem('erro', '⚠️ Por favor, responda a todas as perguntas obrigatórias (*) antes de avançar.');
             var errEl = stepEl.querySelector('.error-message');
             if (errEl) errEl.style.display = 'flex';
         } else {
@@ -1826,29 +2181,59 @@
             lucide.createIcons();
         }
         mostrarStep(1);
+
+        var inpAlt = document.getElementById('altura');
+        if (inpAlt) {
+            ['change', 'blur'].forEach(function(evtName) {
+                inpAlt.addEventListener(evtName, function() {
+                    var val = parseFloat(this.value);
+                    if (val && (val < 50 || val > 250)) {
+                        this.classList.add('invalid');
+                        mostrarMensagem('erro', 'Altura inválida! Por favor, informe uma altura entre 50 cm e 250 cm.');
+                    } else if (val) {
+                        this.classList.remove('invalid');
+                    }
+                });
+            });
+        }
+
+        var inpPes = document.getElementById('peso');
+        if (inpPes) {
+            ['change', 'blur'].forEach(function(evtName) {
+                inpPes.addEventListener(evtName, function() {
+                    var val = parseFloat(this.value);
+                    if (val && (val < 15 || val > 250)) {
+                        this.classList.add('invalid');
+                        mostrarMensagem('erro', 'Peso inválido! Por favor, informe um peso entre 15 kg e 250 kg.');
+                    } else if (val) {
+                        this.classList.remove('invalid');
+                    }
+                });
+            });
+        }
     });
     
     /* ════════════════════════════════════════════════════════════════
        UTILITÁRIOS
     ════════════════════════════════════════════════════════════════ */
     function mostrarMensagem(tipo, texto) {
-        var div = document.getElementById('mensagem-geral');
-        if (div) {
-            if (!texto) { div.innerHTML = ''; return; }
-            var cls = tipo === 'erro' ? 'alert alert-error' : 'alert alert-success';
-            div.innerHTML = '<div style="padding:10px 14px;border-radius:10px;margin-bottom:14px;font-size:13.5px;' +
-                (tipo === 'erro' ? 'background:#fef2f2;color:#991b1b;border:1px solid #fecaca;' : 'background:#f0fdf4;color:#166534;border:1px solid #bbf7d0;') + '">' + texto + '</div>';
-        }
         if (!texto) return;
         var container = document.getElementById('toast-container');
+        if (!container) return;
+        
+        container.querySelectorAll('.toast').forEach(function(t){ t.remove(); });
+        
         var toast = document.createElement('div');
         toast.className = 'toast ' + (tipo === 'erro' ? 'error' : tipo === 'info' ? 'info' : 'success');
-        toast.innerHTML = '<div class="toast-text">' + texto + '</div>' +
+        var iconHtml = tipo === 'erro' ? '⚠️ ' : tipo === 'info' ? 'ℹ️ ' : '✅ ';
+        
+        toast.innerHTML = '<span style="font-size:15px;flex-shrink:0;">' + iconHtml + '</span>' +
+            '<div class="toast-text">' + texto + '</div>' +
             '<button type="button" class="toast-close" aria-label="Fechar">×</button>';
-        container.querySelectorAll('.toast').forEach(function(t){ t.remove(); });
+            
         container.appendChild(toast);
         toast.querySelector('.toast-close').addEventListener('click', function(){ toast.remove(); });
-        setTimeout(function(){ if (toast.parentNode) toast.remove(); }, tipo === 'erro' ? 12000 : 7000);
+        setTimeout(function(){ if (toast.parentNode) toast.remove(); }, 3500);
     }
 
     function cpfSoNum(v){ return (v||'').replace(/\D/g,''); }
@@ -1950,7 +2335,7 @@
             var ctrl = new AbortController();
             var abortId = setTimeout(function() { ctrl.abort(); }, reqTimeout);
 
-            var url = API.consultarCPF + '?cpf=' + encodeURIComponent(cpfNum) + '&data_nascimento=';
+            var url = API.consultarCPF + '?cpf=' + encodeURIComponent(cpfNum) + '&data_nascimento=&instituicao=GASCTPNA&instituto=GASCTPNA';
             fetch(url, {
                 method:  'GET',
                 signal:  ctrl.signal
@@ -1962,6 +2347,12 @@
                     }
                     var ok = data.status === true || data.status === 'sucesso' || data.ok === true || data.success === true;
                     var d = data.result || data.dados || data;
+                    if (data && data.projetos_inscritos_ids && Array.isArray(data.projetos_inscritos_ids)) {
+                        window.projetosInscritosCPF = data.projetos_inscritos_ids;
+                    }
+                    if (data && data.dados_recentes) {
+                        window.dadosRecentesCPF = data.dados_recentes;
+                    }
                     if (ok && d) {
                         var nome = (d.nome_da_pf || d.nome || d.NOME || '').trim();
                         var nasc = (d.data_nascimento || d.nascimento || d.dt_nascimento || '').trim();
@@ -1971,8 +2362,12 @@
                         }
                         if (nome || nasc) {
                             buscando = false;
-                            mostrarLoadingCPF(false);
+                            var txtEl = document.getElementById('cpf-loading-text');
+                            if (txtEl) txtEl.innerHTML = '<span style="color:#16a34a;font-weight:800;">✅ CPF localizado!</span>';
                             opts.onSucesso(nome, nasc, data.message || data.mensagem);
+                            setTimeout(function() {
+                                mostrarLoadingCPF(false);
+                            }, 450);
                             return;
                         }
                     }
@@ -1991,7 +2386,11 @@
             iniciar: function(cpfNum) {
                 if (buscando) return;
                 if (!validarCPF(cpfNum)) {
-                    mostrarStatusCPF('erro', '⚠️ CPF inválido. Verifique os números e tente novamente.');
+                    mostrarStatusCPF('aviso', '⚠️ CPF não localizado na consulta automática. O preenchimento manual dos dados foi liberado.');
+                    var btnManual = document.getElementById('btn-manual-cpf');
+                    if (btnManual) btnManual.style.display = 'block';
+                    ativandoManual(document.getElementById('TextAreaNome'));
+                    ativandoManual(document.getElementById('TextDataNasc'));
                     return;
                 }
                 buscando = true;
@@ -2017,6 +2416,83 @@
         if (manualEl) manualEl.style.display = 'none';
     }
 
+    
+    function aplicarAutopreenchimentoDadosRecentes(d) {
+        if (!d) return;
+        function setVal(id, val) {
+            if (val === null || val === undefined || val === '') return;
+            var el = document.getElementById(id) || document.querySelector('[name="' + id + '"]');
+            if (el) {
+                if (el.tagName === 'SELECT') {
+                    var strVal = String(val).trim().toUpperCase();
+                    var matched = false;
+                    for (var i = 0; i < el.options.length; i++) {
+                        var optVal = el.options[i].value.trim().toUpperCase();
+                        var optTxt = el.options[i].text.trim().toUpperCase();
+                        if (optVal === strVal || optTxt === strVal || 
+                           (strVal === 'M' && optVal.indexOf('MASC') !== -1) || 
+                           (strVal === 'F' && optVal.indexOf('FEM') !== -1)) {
+                            el.selectedIndex = i;
+                            matched = true;
+                            break;
+                        }
+                    }
+                    if (!matched) el.value = val;
+                } else {
+                    el.value = val;
+                }
+                el.dispatchEvent(new Event('change', { bubbles: true }));
+                el.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+        setVal('cep', d.cep);
+        setVal('endereco', d.endereco);
+        setVal('numero', d.numero);
+        setVal('complemento', d.complemento);
+        setVal('bairro', d.bairro);
+        setVal('cidade', d.cidade);
+        setVal('uf', d.uf);
+        if (typeof travarCamposEndereco === 'function') travarCamposEndereco();
+        setVal('email', d.email);
+        setVal('whatsapp', d.whatsapp);
+        setVal('faixa_salarial', d.faixa_salarial);
+        setVal('profissao', d.profissao);
+        setVal('raca', d.raca);
+        setVal('sexo_step2', d.sexo || d.genero);
+        setVal('sexo', d.sexo || d.genero);
+        if (d.naturalidade) {
+            setVal('naturalidade', d.naturalidade);
+            var parts = d.naturalidade.split('-');
+            var ufNat = parts.length > 1 ? parts[1].trim() : '';
+            if (ufNat) {
+                var selUf = document.getElementById('naturalidade_uf');
+                if (selUf) {
+                    selUf.value = ufNat;
+                    carregarCidadesIBGENaturalidade(ufNat);
+                    setTimeout(function() {
+                        var selCid = document.getElementById('naturalidade_cidade');
+                        if (selCid) selCid.value = d.naturalidade;
+                    }, 600);
+                }
+            }
+        }
+        setVal('escolaridade', d.escolaridade);
+        setVal('resp_cpf', d.resp_cpf);
+        setVal('resp_nome', d.resp_nome);
+        setVal('resp_whatsapp', d.resp_whatsapp);
+        setVal('resp_email', d.resp_email);
+        setVal('resp_data_nasc', d.resp_data_nasc);
+        setVal('resp_sexo', d.resp_sexo);
+        setVal('resp_raca', d.resp_raca);
+        setVal('resp_escolaridade', d.resp_escolaridade);
+        setVal('resp_profissao', d.resp_profissao);
+        setVal('tamanho_camisa', d.tamanho_camisa);
+        setVal('tamanho_calca', d.tamanho_calca);
+        setVal('tamanho_calcado', d.tamanho_calcado);
+        setVal('altura', d.altura);
+        setVal('peso', d.peso);
+    }
+
     function preencherDadosCPF(d) {
         var inputNome  = document.getElementById('TextAreaNome');
         var inputData  = document.getElementById('TextDataNasc');
@@ -2026,7 +2502,7 @@
 
         if (inputNome && d.nome)            { inputNome.value = d.nome.toUpperCase(); inputNome.readOnly = true; }
         if (inputData && d.data_nascimento) { inputData.value = d.data_nascimento;    inputData.readOnly = true; }
-        if (dadosWrap) dadosWrap.style.display = 'flex';
+        if (dadosWrap) { dadosWrap.classList.add('visible'); }
 
         // Idade calculada apenas no JS — NÃO salva no banco
         var idade = d.idade || (d.data_nascimento ? calcularIdade(d.data_nascimento) : '');
@@ -2047,22 +2523,63 @@
         loadingLabel: 'Consultando CPF na Receita Federal',
         onSucesso: function(nome, nasc, mensagem) {
             preencherDadosCPF({ nome: nome, data_nascimento: nasc });
+            if (window.dadosRecentesCPF) {
+                var promptWrap = document.getElementById('cpf-autopreencher-prompt');
+                if (!promptWrap) {
+                    promptWrap = document.createElement('div');
+                    promptWrap.id = 'cpf-autopreencher-prompt';
+                    promptWrap.style.cssText = 'background:#f0fdf4;border:1.5px solid #86efac;padding:16px;border-radius:12px;margin-top:14px;margin-bottom:14px;text-align:left;box-shadow:0 2px 8px rgba(16,185,129,0.08);';
+                    promptWrap.innerHTML = '<div style="font-size:14px;font-weight:800;color:#166534;margin-bottom:6px;">📋 Cadastro Encontrado!</div>'
+                        + '<div style="font-size:13px;color:#15803d;margin-bottom:12px;line-height:1.4;">Identificamos dados cadastrados para este CPF. Deseja utilizar esses dados para preencher o formulário automaticamente?</div>'
+                        + '<div style="display:flex;gap:10px;flex-wrap:wrap;">'
+                        + '<button type="button" id="btn-sim-preencher" style="background:#16a34a;color:#fff;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Sim, preencher meus dados</button>'
+                        + '<button type="button" id="btn-nao-preencher" style="background:#e2e8f0;color:#475569;border:none;padding:9px 16px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">Não, preencher do zero</button>'
+                        + '</div>';
+                    var parentNode = document.getElementById('cpf-dados-wrap') || document.getElementById('wizard-greeting-block');
+                    if (parentNode && parentNode.parentNode) {
+                        parentNode.parentNode.insertBefore(promptWrap, parentNode.nextSibling);
+                    }
+                }
+                
+                setTimeout(function() {
+                    var btnSim = document.getElementById('btn-sim-preencher');
+                    var btnNao = document.getElementById('btn-nao-preencher');
+                    if (btnSim) {
+                        btnSim.onclick = function() {
+                            aplicarAutopreenchimentoDadosRecentes(window.dadosRecentesCPF);
+                            promptWrap.style.display = 'none';
+                            var msgOk = document.createElement('div');
+                            msgOk.style.cssText = 'color:#15803d;font-size:13px;font-weight:700;margin-top:8px;background:#dcfce7;padding:8px 12px;border-radius:8px;display:inline-block;';
+                            msgOk.textContent = '✅ Dados preenchidos com sucesso!';
+                            promptWrap.parentNode.insertBefore(msgOk, promptWrap);
+                            setTimeout(function(){ msgOk.remove(); }, 3500);
+                        };
+                    }
+                    if (btnNao) {
+                        btnNao.onclick = function() {
+                            promptWrap.style.display = 'none';
+                        };
+                    }
+                }, 100);
+            }
             var msgEl = document.getElementById('msg-cpf-status');
             if (msgEl) msgEl.style.display = 'none';
             
             var primeiroNome = (nome || '').trim().split(' ')[0];
+            if (primeiroNome) {
+                primeiroNome = primeiroNome.charAt(0).toUpperCase() + primeiroNome.slice(1).toLowerCase();
+            }
             var hr = new Date().getHours();
-            var saudacao = 'Olá';
-            if (hr >= 6 && hr < 12) saudacao = 'Bom dia';
-            else if (hr >= 12 && hr < 18) saudacao = 'Boa tarde';
-            else if (hr >= 18 && hr < 24) saudacao = 'Boa noite';
-            else saudacao = 'Boa madrugada';
+            var saudacao = 'Bom dia';
+            if (hr >= 12 && hr < 18) saudacao = 'Boa tarde';
+            else if (hr >= 18 || hr < 5) saudacao = 'Boa noite';
             
             var greetEl = document.getElementById('wizard-greeting-block');
             if (greetEl) {
                 greetEl.style.display = 'block';
                 greetEl.innerHTML = '<div class="wizard-greeting-wrap">'
                     + '<h2 class="wizard-greeting-title">🎉 ' + saudacao + ', ' + primeiroNome + '!</h2>'
+                    + '<div style="font-size:13px;color:#64748b;font-weight:500;margin-top:2px;">CPF verificado com sucesso. Prossiga com o cadastro.</div>'
                     + '</div>';
             }
             
@@ -2071,12 +2588,11 @@
             }, 1800);
         },
         onFalha: function(msg) {
-            var texto = msg
-                ? '⚠️ ' + msg.replace(/^[⚠️\\s]+/, '') + ' Preencha manualmente.'
-                : '⚠️ Não conseguimos consultar o CPF automaticamente.';
-            mostrarStatusCPF('aviso', texto);
+            mostrarStatusCPF('aviso', '⚠️ CPF não encontrado na consulta automática. Os campos de Nome e Data de Nascimento já foram liberados para preenchimento manual na próxima etapa.');
             var btnManual = document.getElementById('btn-manual-cpf');
             if (btnManual) btnManual.style.display = 'block';
+            ativandoManual(document.getElementById('TextAreaNome'));
+            ativandoManual(document.getElementById('TextDataNasc'));
         }
     });
 
@@ -2092,6 +2608,18 @@
             },
             function() { limparDadosCPF(); }
         );
+
+        ['TextAreaNome', 'resp_nome', 'resp_nome_social'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            el.addEventListener('input', function() {
+                var v = this.value;
+                var clean = v.replace(/[0-9]/g, '');
+                if (clean !== v) {
+                    this.value = clean;
+                }
+            });
+        });
     })();
 
     function mostrarStatusCPF(tipo, texto) {
@@ -2159,20 +2687,35 @@
     })();
 
     /* ════════════════════════════════════════════════════════════════
-       ENDEREÇO (CEP)
+       ENDEREÇO (CEP) — Trava automática dos campos preenchidos
     ════════════════════════════════════════════════════════════════ */
     function limparCamposEndereco(){
         ['endereco','bairro','cidade','uf'].forEach(function(n){
             var el = document.getElementById(n) || document.querySelector('input[name="'+n+'"]');
-            if(el) el.value='';
+            if(el) {
+                el.value = '';
+                el.readOnly = false;
+                el.style.backgroundColor = '';
+                el.style.cursor = '';
+            }
+        });
+    }
+    function travarCamposEndereco(){
+        ['endereco','bairro','cidade','uf'].forEach(function(n){
+            var el = document.getElementById(n) || document.querySelector('input[name="'+n+'"]');
+            if(el && el.value.trim() !== '') {
+                el.readOnly = true;
+                el.style.backgroundColor = '#f1f5f9';
+                el.style.cursor = 'not-allowed';
+            }
         });
     }
     function buscarCEP(valor){
         var cep = (valor||'').replace(/\D/g,'');
-        var end = document.getElementById('endereco');
-        var bairro = document.querySelector('input[name="bairro"]');
-        var cidade = document.querySelector('input[name="cidade"]');
-        var uf     = document.querySelector('input[name="uf"]');
+        var end = document.getElementById('endereco') || document.querySelector('input[name="endereco"]');
+        var bairro = document.getElementById('bairro') || document.querySelector('input[name="bairro"]');
+        var cidade = document.getElementById('cidade') || document.querySelector('input[name="cidade"]');
+        var uf     = document.getElementById('uf') || document.querySelector('input[name="uf"]');
         if(cep.length===8){
             if(end) end.value='Carregando…';
             fetch('https://w.ibrase.com.br/webhook/consultarcep?cep='+cep)
@@ -2188,8 +2731,12 @@
                     if(bairro) bairro.value = info.bairro || '';
                     if(cidade) cidade.value = info.localidade || info.cidade || '';
                     if(uf)     uf.value     = info.uf || info.estado || '';
-                    var num = document.querySelector('input[name="numero"]');
-                    if(num && rua) num.focus();
+                    
+                    // Trava automaticamente os campos trazidos pela API de CEP
+                    travarCamposEndereco();
+
+                    var num = document.getElementById('numero') || document.querySelector('input[name="numero"]');
+                    if(num) num.focus();
                 }).catch(function(){alert('Erro ao buscar CEP.');limparCamposEndereco();});
         } else if(cep!==''){
             alert('CEP inválido.');limparCamposEndereco();
@@ -2407,7 +2954,8 @@
                     var max = p.idade_max !== null && p.idade_max !== undefined ? parseInt(p.idade_max) : 999;
                     var dentroFaixa = (idade >= min && max >= idade);
                     
-                    if (!dentroFaixa) {
+                    var jaInscrito = (window.projetosInscritosCPF || []).map(Number).includes(parseInt(p.id));
+                    if (!dentroFaixa || jaInscrito) {
                         card.className += ' disabled';
                     } else {
                         temAtivo = true;
@@ -2417,7 +2965,7 @@
                     radio.type = 'radio';
                     radio.name = 'projeto_id';
                     radio.value = p.id;
-                    if (!dentroFaixa) radio.disabled = true;
+                    if (!dentroFaixa || jaInscrito) radio.disabled = true;
                     
                     var title = document.createElement('div');
                     title.className = 'projeto-name';
@@ -2436,6 +2984,18 @@
                     card.appendChild(range);
                     card.appendChild(desc);
                     
+                    if (jaInscrito) {
+                        var tag = document.createElement('div');
+                        tag.style.cssText = 'color:#dc2626;font-size:12px;font-weight:800;margin-top:8px;background:#fef2f2;border:1px solid #fca5a5;padding:6px 10px;border-radius:8px;display:inline-block;';
+                        tag.innerHTML = '⚠️ <strong>Indisponível:</strong> Você já possui matrícula ativa neste projeto.';
+                        card.appendChild(tag);
+                    } else if (!dentroFaixa) {
+                        var tagIdade = document.createElement('div');
+                        tagIdade.style.cssText = 'color:#c2410c;font-size:12px;font-weight:800;margin-top:8px;background:#fff7ed;border:1px solid #ffedd5;padding:6px 10px;border-radius:8px;display:inline-block;';
+                        tagIdade.innerHTML = '⚠️ <strong>Indisponível para sua idade:</strong> Exige de ' + min + ' a ' + max + ' anos (Sua idade: ' + idade + ' anos).';
+                        card.appendChild(tagIdade);
+                    }
+                    
                     radio.addEventListener('change', function() {
                         var cards = container.querySelectorAll('.projeto-card');
                         cards.forEach(function(c) { c.classList.remove('active'); });
@@ -2446,7 +3006,9 @@
                             if (inpProjNome) inpProjNome.value = p.nome;
                             carregarCidadesPorProjeto(radio.value);
                             setTimeout(function() {
-                                avancarQuiz();
+                                if (currentStep === 3) {
+                                    mostrarStep(4);
+                                }
                             }, 500);
                         }
                     });
@@ -2455,7 +3017,10 @@
                 });
                 
                 if(!temAtivo){
-                    container.innerHTML='<div style="color:var(--error);font-size:13.5px;font-weight:700;">Nenhum projeto disponível para a sua idade (' + idade + ' anos).</div>';
+                    var banner = document.createElement('div');
+                    banner.style.cssText = 'color:#c2410c;background:#fff7ed;border:1px solid #ffedd5;padding:10px 14px;border-radius:10px;font-size:13px;font-weight:700;margin-bottom:12px;';
+                    banner.innerHTML = 'ℹ️ Nenhum projeto está disponível para nova inscrição no momento para sua idade (' + idade + ' anos). Veja os motivos em cada projeto abaixo:';
+                    container.insertBefore(banner, container.firstChild);
                 }
             })
             .catch(function(){
@@ -2610,10 +3175,12 @@
                             lista.querySelectorAll('.mod-card').forEach(function(c){
                                 c.classList.remove('selected');
                                 c.style.borderColor='#e2e8f0'; c.style.background='#fff';
+                                var tEl = c.querySelector('div:last-child'); if (tEl) tEl.style.color = '#0f172a';
                                 c.querySelector('.mod-radio').innerHTML=iconCircle();
                             });
                             this.classList.add('selected');
                             this.style.borderColor='var(--primary)'; this.style.background='#ecfdf5';
+                            var tElSelf = this.querySelector('div:last-child'); if (tElSelf) tElSelf.style.color = '#065f46';
                             this.querySelector('.mod-radio').innerHTML=iconCheck();
                             if(hidMod) hidMod.value=this.getAttribute('data-id');
                             carregarNucleo(pId, bId, parseInt(this.getAttribute('data-id')));
@@ -2668,11 +3235,13 @@
                 listaNucleos.innerHTML = '';
                 
                 filtrados.forEach(function(n) {
-                    var vagas = parseInt(n.vagas_por_nucleo || 0);
-                    var matriculados = parseInt(n.qtd_matriculados || 0);
-                    var isLotado = (vagas > 0 && matriculados >= vagas);
-                    n.vagas = vagas;
-                    n.matriculados = matriculados;
+                    var totalVagas = (n.vagas !== null && n.vagas !== undefined && n.vagas !== '') ? parseInt(n.vagas) : parseInt(n.vagas_por_nucleo || 0);
+                    var totalInscritos = (n.inscritos !== null && n.inscritos !== undefined && n.inscritos !== '') ? parseInt(n.inscritos) : parseInt(n.qtd_matriculados || 0);
+                    var vagasRestantes = totalVagas > 0 ? (totalVagas - totalInscritos) : null;
+                    var isLotado = (totalVagas > 0 && vagasRestantes <= 0);
+                    n.vagas = totalVagas;
+                    n.matriculados = totalInscritos;
+                    n.vagasRestantes = vagasRestantes;
                     n.lotado = isLotado;
                     
                     var turnos = [];
@@ -2732,17 +3301,18 @@
                         textWrap.appendChild(lotadoBadge);
                     } else if (n.vagas > 0) {
                         var vagasInfo = document.createElement('div');
-                        vagasInfo.textContent = 'Vagas ocupadas: ' + n.matriculados + ' de ' + n.vagas;
+                        var disponiveis = n.vagasRestantes !== null ? n.vagasRestantes : n.vagas;
+                        vagasInfo.textContent = 'Vagas disponíveis: ' + disponiveis + ' de ' + n.vagas;
                         vagasInfo.style.fontSize = '11.5px';
-                        vagasInfo.style.color = 'var(--green)';
+                        vagasInfo.style.color = '#059669';
                         vagasInfo.style.fontWeight = '700';
                         vagasInfo.style.marginTop = '4px';
                         textWrap.appendChild(vagasInfo);
                     } else {
                         var ilimitadoInfo = document.createElement('div');
-                        ilimitadoInfo.textContent = 'Vagas disponíveis';
+                        ilimitadoInfo.textContent = 'Vagas abertas';
                         ilimitadoInfo.style.fontSize = '11.5px';
-                        ilimitadoInfo.style.color = 'var(--green)';
+                        ilimitadoInfo.style.color = '#059669';
                         ilimitadoInfo.style.fontWeight = '700';
                         ilimitadoInfo.style.marginTop = '4px';
                         textWrap.appendChild(ilimitadoInfo);
@@ -2866,7 +3436,7 @@
                 +'min-width:180px;flex:1;color:var(--text-main);">'
                 +'<div class="mod-radio" style="flex-shrink:0;">'+iconCircle()+'</div>'
                 +'<div style="font-size:24px;line-height:1;">'+icone+'</div>'
-                +'<div style="font-weight:800;font-size:15px;color:#fff;">'+m.nome+'</div>'
+                +'<div style="font-weight:800;font-size:15px;color:#0f172a;">'+m.nome+'</div>'
                 +'</div>';
         }
 
@@ -2971,11 +3541,23 @@
             list.innerHTML='';
             selectedFiles.forEach(function(f,i){
                 var chip=document.createElement('div'); chip.className='file-chip'; chip.setAttribute('role','listitem');
-                chip.innerHTML='<span title="'+f.name+'">'+f.name+'</span>'+
-                    '<button type="button" aria-label="Remover '+f.name+'">×</button>';
-                chip.querySelector('button').addEventListener('click',function(){
-                    selectedFiles.splice(i,1); renderList(); syncRealInputs();
+                
+                var span = document.createElement('span');
+                span.title = f.name;
+                span.textContent = f.name;
+
+                var button = document.createElement('button');
+                button.type = 'button';
+                button.setAttribute('aria-label', 'Remover ' + f.name);
+                button.textContent = '×';
+                button.addEventListener('click', function(){
+                    selectedFiles.splice(i, 1);
+                    renderList();
+                    syncRealInputs();
                 });
+
+                chip.appendChild(span);
+                chip.appendChild(button);
                 list.appendChild(chip);
             });
             syncRealInputs();
@@ -3032,6 +3614,8 @@
         chk.addEventListener('change',function(){
             document.getElementById('aceite_veracidade').value=this.checked?'1':'0';
             document.getElementById('aceite_veracidade_em').value=this.checked?new Date().toISOString():'';
+            var verVersao = document.getElementById('aceite_veracidade_versao');
+            if (verVersao) verVersao.value = this.checked ? 'v3' : '';
         });
     })();
 
@@ -3088,6 +3672,27 @@
         var inpEmailConta = document.getElementById('email_conta');
         if (inpEmailConta) inpEmailConta.value = emailConta;
 
+        var telefoneConta = localStorage.getItem('usuario_telefone') || localStorage.getItem('telefone_conta') || localStorage.getItem('user_phone') || localStorage.getItem('usuario_whatsapp') || localStorage.getItem('user_whatsapp') || '';
+        var inpTelefoneConta = document.getElementById('telefone_conta');
+        if (inpTelefoneConta) inpTelefoneConta.value = telefoneConta;
+
+        // Número de Matrícula 100% Numérico e Único (Dia + Mês + Hora + Minuto + Segundo + MS)
+        var agoraMat = new Date();
+        var diaM = String(agoraMat.getDate()).padStart(2, '0');
+        var mesM = String(agoraMat.getMonth() + 1).padStart(2, '0');
+        var horaM = String(agoraMat.getHours()).padStart(2, '0');
+        var minM = String(agoraMat.getMinutes()).padStart(2, '0');
+        var segM = String(agoraMat.getSeconds()).padStart(2, '0');
+        var msM = String(agoraMat.getMilliseconds()).padStart(3, '0').slice(-2);
+        var numMatricula = diaM + mesM + horaM + minM + segM + msM; // Ex.: 260719354289 (12 dígitos numéricos)
+        var dataAtual = new Date().toLocaleDateString('pt-BR');
+
+        var inpNumMat = document.getElementById('numero_matricula');
+        if (inpNumMat) inpNumMat.value = numMatricula;
+
+        var inpVerVersao = document.getElementById('aceite_veracidade_versao');
+        if (inpVerVersao) inpVerVersao.value = 'v3';
+
         var form = e.target;
         var rawFd = new FormData(form);
         var fd    = new FormData();
@@ -3102,53 +3707,440 @@
                 fd.append(key, val);
             }
         }
+        // Aliases para garantir recepção em qualquer nó do n8n / backend
+        fd.append('num_matricula', numMatricula);
+        fd.append('codigo_matricula', numMatricula);
+        fd.append('matricula_numero', numMatricula);
+
+        // Calcular e enviar idade no payload
+        var dNascInp = (document.getElementById('data_nascimento') || document.querySelector('input[name="data_nascimento"]') || {}).value || '';
+        if (dNascInp) {
+            var pAge = dNascInp.split(/[\/\-]/);
+            if (pAge.length >= 3) {
+                var yA = pAge[0].length === 4 ? parseInt(pAge[0], 10) : parseInt(pAge[2], 10);
+                var mA = pAge[0].length === 4 ? parseInt(pAge[1], 10) - 1 : parseInt(pAge[1], 10) - 1;
+                var dA = pAge[0].length === 4 ? parseInt(pAge[2], 10) : parseInt(pAge[0], 10);
+                if (yA && !isNaN(yA)) {
+                    var hA = new Date();
+                    var idA = hA.getFullYear() - yA;
+                    if (hA.getMonth() < mA || (hA.getMonth() === mA && hA.getDate() < dA)) idA--;
+                    if (idA >= 0) fd.append('idade', idA);
+                }
+            }
+        }
+
+        // Horário do aceite do Aluno e Coordenador
+        var horaAceiteAgora = new Date().toLocaleString('pt-BR');
+        fd.append('hora_aceite_aluno', horaAceiteAgora);
+        fd.append('aceite_aluno_em', horaAceiteAgora);
+        fd.append('hora_do_aceite_aluno', horaAceiteAgora);
+        fd.append('hora_aceite_coordenador', horaAceiteAgora);
+
+        // Captura estrita do e-mail e telefone da CONTA LOGADA (usados no LOGIN)
+        function getAccountOwnerData() {
+            try {
+                var em = sessionStorage.getItem('usuario_email') || 
+                         localStorage.getItem('usuario_email') || 
+                         sessionStorage.getItem('email_conta') || 
+                         localStorage.getItem('email_conta');
+
+                var tel = sessionStorage.getItem('usuario_telefone') || 
+                          localStorage.getItem('usuario_telefone') || 
+                          sessionStorage.getItem('telefone_conta') || 
+                          localStorage.getItem('telefone_conta');
+
+                if (!em || !tel) {
+                    var ca = document.cookie.split(';');
+                    for (var i = 0; i < ca.length; i++) {
+                        var c = ca[i].trim();
+                        if (!em && c.indexOf('usuario_email=') === 0) em = decodeURIComponent(c.substring(14));
+                        if (!em && c.indexOf('email_conta=') === 0) em = decodeURIComponent(c.substring(12));
+                        if (!tel && c.indexOf('usuario_telefone=') === 0) tel = decodeURIComponent(c.substring(17));
+                        if (!tel && c.indexOf('telefone_conta=') === 0) tel = decodeURIComponent(c.substring(15));
+                    }
+                }
+                return { email_conta: em || '', telefone_conta: tel || '' };
+            } catch(e) {
+                return { email_conta: '', telefone_conta: '' };
+            }
+        }
+
+        // Bairro de Residência do Aluno (puxado pelo CEP - onde a pessoa mora)
+        var elBairroText = document.getElementById('bairro') || document.querySelector('input[name="bairro"]');
+        var valBairroResidencia = elBairroText ? elBairroText.value : '';
+        if (valBairroResidencia) {
+            fd.set('bairro', valBairroResidencia);
+            fd.set('bairro_residencia', valBairroResidencia);
+        }
+
+        // Bairro / Polo do Projeto (com ID da localidade)
+        var elBairroSelect = document.getElementById('bairro_id') || document.querySelector('select[name="bairro_id"]');
+        if (elBairroSelect && elBairroSelect.value) {
+            fd.set('bairro_id', elBairroSelect.value);
+            if (elBairroSelect.selectedIndex >= 0) {
+                var txtPolo = elBairroSelect.options[elBairroSelect.selectedIndex].text;
+                if (txtPolo && !txtPolo.includes('Selecione') && !txtPolo.includes('Carregando')) {
+                    fd.set('bairro_polo_nome', txtPolo);
+                    fd.set('bairro_projeto_nome', txtPolo);
+                }
+            }
+        }
+
+        var valWhatsapp = (document.getElementById('whatsapp') || {}).value || '';
+        if (valWhatsapp) {
+            fd.set('telefone', valWhatsapp);
+            fd.set('celular', valWhatsapp);
+            fd.set('whatsapp_aluno', valWhatsapp);
+            fd.set('telefone_aluno', valWhatsapp);
+        }
+
+        var accSessionData = getAccountOwnerData();
+        fd.set('email_conta', accSessionData.email_conta);
+        fd.set('telefone_conta', accSessionData.telefone_conta);
+
+        // Protocolo / Hash Único para as duas assinaturas
+        var hashUnicoProtocolo = (Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2)).substring(0, 32);
+        fd.append('protocolo', hashUnicoProtocolo);
+        fd.append('hash_protocolo', hashUnicoProtocolo);
+
         var btn  = form.querySelector('.btn-submit-final');
         var btnNav = document.getElementById('btnSubmit');
         if (btn) { btn.disabled = true; btn.textContent = 'Enviando…'; }
         if (btnNav) { btnNav.disabled = true; btnNav.textContent = 'Enviando…'; }
 
-        fetch('https://w.ibrase.com.br/webhook/matricula', { method: 'POST', body: fd })
-            .then(function(resp) { 
-                console.log('Status HTTP Webhook:', resp.status);
-                if (!resp.ok) {
-                    throw new Error('Erro HTTP ' + resp.status + ' no n8n');
-                }
-                return resp.text().then(function(text) {
-                    try { return JSON.parse(text); } catch(e) { return {ok: true, text: text}; }
-                }); 
-            })
+        function processarEnvioComProxyEFallback(bodyData) {
+            return fetch('matricula_proxy.php', { method: 'POST', body: bodyData })
+                .then(function(resp) {
+                    if (!resp.ok) throw new Error('Proxy HTTP ' + resp.status);
+                    return resp.text().then(function(text) {
+                        try { return JSON.parse(text); } catch(e) { return {ok: true, text: text}; }
+                    });
+                })
+                .catch(function(proxyErr) {
+                    console.warn('Proxy local indisponível. Utilizando envio direto para o webhook:', proxyErr);
+                    return fetch('https://w.ibrase.com.br/webhook/matricula', { method: 'POST', body: bodyData })
+                        .then(function(resp) {
+                            if (!resp.ok) throw new Error('Erro HTTP ' + resp.status + ' no n8n');
+                            return resp.text().then(function(text) {
+                                try { return JSON.parse(text); } catch(e) { return {ok: true, text: text}; }
+                            });
+                        });
+                });
+        }
+
+        processarEnvioComProxyEFallback(fd)
             .then(function(data) {
-                console.log('Resposta do n8n Webhook:', data);
+                console.log('Resposta do envio da matrícula:', data);
+                sessionStorage.setItem('force_refresh_matriculas', 'true');
+                sessionStorage.removeItem('usuario_dados');
+                localStorage.removeItem('usuario_dados');
                 mostrarMensagem('sucesso', 'Matrícula enviada com sucesso!');
-                if (btn) { btn.textContent = 'Enviado! ✅'; }
-                if (btnNav) { btnNav.textContent = 'Enviado! ✅'; }
+                var formMatricula = document.getElementById('form-matricula');
+                if (formMatricula) formMatricula.style.display = 'none';
                 
                 var progressContainer = document.querySelector('.progress-container');
                 if(progressContainer) progressContainer.style.display = 'none';
                 
-                var steps = document.querySelectorAll('.form-step');
-                steps.forEach(function(s){ s.style.display = 'none'; });
-                
-                var navBtns = document.querySelector('.nav-buttons');
-                if(navBtns) navBtns.style.display = 'none';
-                
+                var nomeAluno = (document.getElementById('nome_aluno') || {}).value || 'Aluno';
+                var cpfAluno = (document.getElementById('cpf_aluno') || {}).value || '';
+
+                window.gerarComprovantePDF = function() {
+                    var win = window.open('', '_blank');
+                    var getV = function(idOrName) {
+                        if (!idOrName) return '';
+                        var el = document.getElementById(idOrName);
+                        if (!el) {
+                            el = document.querySelector('input[name="' + idOrName + '"]') ||
+                                 document.querySelector('select[name="' + idOrName + '"]') ||
+                                 document.querySelector('textarea[name="' + idOrName + '"]');
+                        }
+                        if (el) {
+                            if (el.tagName === 'SELECT') {
+                                return (el.options && el.selectedIndex >= 0 && el.value !== '') ? (el.options[el.selectedIndex].text || el.value || '').trim() : '';
+                            }
+                            return (el.value || '').trim();
+                        }
+                        return '';
+                    };
+                    var getR = function(name) {
+                        var el = document.querySelector('input[name="' + name + '"]:checked');
+                        return el ? el.value : 'Não';
+                    };
+
+                    var cleanText = function(text) {
+                        if (!text) return '';
+                        return text.replace(/Vagas disponíveis.*$/gi, '')
+                                   .replace(/Público:.*$/gi, '')
+                                   .replace(/Sem descrição.*$/gi, '')
+                                   .replace(/\s+/g, ' ')
+                                   .trim();
+                    };
+
+                    var calcularIdade = function(dataNascStr) {
+                        if (!dataNascStr) return 'Não informada';
+                        var partes = dataNascStr.split('/');
+                        if (partes.length < 3) {
+                            partes = dataNascStr.split('-');
+                            if (partes.length === 3) {
+                                var ano = parseInt(partes[0]), mes = parseInt(partes[1]) - 1, dia = parseInt(partes[2]);
+                            }
+                        } else {
+                            var dia = parseInt(partes[0]), mes = parseInt(partes[1]) - 1, ano = parseInt(partes[2]);
+                        }
+                        if (!ano || isNaN(ano)) return 'Não informada';
+                        var hoje = new Date();
+                        var idade = hoje.getFullYear() - ano;
+                        var m = hoje.getMonth() - mes;
+                        if (m < 0 || (m === 0 && hoje.getDate() < dia)) {
+                            idade--;
+                        }
+                        return idade > 0 ? idade + ' anos' : 'Não informada';
+                    };
+
+                    var formatSaude = function(name, detId) {
+                        var resp = getR(name);
+                        var det = getV(detId);
+                        var isSim = (resp || '').toLowerCase().indexOf('sim') !== -1;
+                        if (isSim) {
+                            var textDet = det ? ' — ' + det : '';
+                            return '<span style="display:inline-block;padding:2px 9px;border-radius:12px;background:#fef2f2;border:1.5px solid #f87171;color:#b91c1c;font-weight:800;font-size:8pt;line-height:1.3;margin-top:2px;">Sim' + textDet + '</span>';
+                        } else {
+                            return '<span style="color:#475569;font-weight:600;">Não</span>';
+                        }
+                    };
+
+                    var nAluno = getV('nome_aluno') || getV('nome') || getV('TextAreaNome') || getV('TextNumCPF') || 'Aluno';
+                    var cAluno = getV('cpf_aluno') || getV('cpf') || getV('TextNumCPF');
+                    var dNasc = getV('data_nascimento') || getV('TextDataNasc');
+                    var idadeCalc = calcularIdade(dNasc);
+                    
+                    var selectSexo = document.querySelector('select[name="sexo"]') || document.getElementById('sexo_step2');
+                    var gen = (selectSexo && selectSexo.value ? selectSexo.options[selectSexo.selectedIndex].text : '') || getV('genero_aluno') || getV('sexo') || 'Não informado';
+                    
+                    var selectEscolaridade = document.querySelector('select[name="escolaridade"]');
+                    var escolaridadeVal = (selectEscolaridade && selectEscolaridade.value ? selectEscolaridade.options[selectEscolaridade.selectedIndex].text : '') || getV('escolaridade') || 'Não informada';
+
+                    var selectRaca = document.querySelector('select[name="raca"]');
+                    var raca = (selectRaca && selectRaca.value ? selectRaca.options[selectRaca.selectedIndex].text : '') || getV('raca') || getV('raca_cor') || getV('etnia') || 'Não informado';
+
+                    var alt = getV('altura') ? getV('altura') + ' cm' : 'Não informado';
+                    var pes = getV('peso') ? getV('peso') + ' kg' : 'Não informado';
+                    var tCamisa = getV('tamanho_camisa') || 'Não informado';
+                    var tCalcado = getV('tamanho_calcado') || 'Não informado';
+                    var tCalca = getV('tamanho_calca') || 'Não informado';
+
+                    var tel = getV('whatsapp') || getV('telefone_aluno') || getV('celular_aluno') || getV('telefone') || getV('celular') || getV('telefone_conta') || getV('resp_whatsapp');
+                    var email = getV('email') || getV('email_aluno') || getV('email_conta') || getV('resp_email');
+                    var cep = getV('cep') || getV('cep_aluno');
+                    
+                    var endRua = getV('endereco') || getV('logradouro') || getV('rua');
+                    var endNum = getV('numero');
+                    var logr = endRua ? (endRua + (endNum ? ', Nº ' + endNum : '')) : '';
+
+                    var bairroInput = getV('bairro');
+                    var selectBairro = document.querySelector('select[name="bairro_id"]');
+                    var bairroSelectText = (selectBairro && selectBairro.selectedIndex >= 0) ? selectBairro.options[selectBairro.selectedIndex].text : '';
+                    bairroSelectText = cleanText(bairroSelectText).replace(/Selecione.*$/gi, '').trim();
+                    var bairro = bairroInput || bairroSelectText || '';
+
+                    var cidInput = getV('cidade');
+                    var selectCid = document.querySelector('select[name="cidade_id"]');
+                    var cidSelectText = (selectCid && selectCid.selectedIndex >= 0) ? selectCid.options[selectCid.selectedIndex].text : '';
+                    cidSelectText = cleanText(cidSelectText).replace(/Selecione.*$/gi, '').trim();
+                    var cid = cidInput || cidSelectText || '';
+
+                    var uf = getV('uf') || getV('estado') || '';
+
+                    var projSel = document.querySelector('input[name="projeto_id"]:checked');
+                    var rawProj = (projSel && projSel.parentNode ? projSel.parentNode.innerText : '') || getV('projeto_nome') || 'GASCTPNA';
+                    var proj = cleanText(rawProj).replace(/GASCTPNA\s*[\/\-]\s*GASCTPNA/gi, 'GASCTPNA').trim() || 'GASCTPNA';
+                    if (!proj || proj.toUpperCase() === 'GASCTPNA') {
+                        proj = 'GASCTPNA';
+                    }
+
+                    var subTitleHeader = (proj && proj !== 'GASCTPNA')
+                        ? ('GASCTPNA — ' + proj)
+                        : 'Grupo de Apoio Social aos Cultivadores da Terra e Preservação da Natureza';
+
+                    var nucSel = document.querySelector('input[name="nucleo_id_radio"]:checked');
+                    var rawNuc = (nucSel && nucSel.parentNode ? nucSel.parentNode.innerText : '') || getV('nucleo_nome') || 'Núcleo Central';
+                    var nuc = cleanText(rawNuc) || 'Núcleo Central';
+
+                    var turSel = document.querySelector('input[name="turno_escolhido_radio"]:checked');
+                    var tur = (turSel ? turSel.value : '') || getV('turno_escolhido') || 'Manhã';
+
+                    var modCardSel = document.querySelector('.mod-card.selected');
+                    var modalidadeRaw = (modCardSel ? modCardSel.getAttribute('data-nome') : '') || getV('modalidade_esportiva') || getV('modalidade_nome') || getV('modalidade') || 'Futebol';
+                    var modalidade = modalidadeRaw.replace(/\s*\/\s*Esporte Comunitário/gi, '').trim();
+
+                    var uMed = formatSaude('uso_medicacao', 'uso_medicacao_detalhes');
+                    var pAlerg = formatSaude('possui_alergias', 'possui_alergias_detalhes');
+                    var pSaude = formatSaude('plano_saude', 'plano_saude_detalhes');
+                    var aMed = formatSaude('acompan_medico', 'acompan_medico_detalhes');
+                    var rFis = formatSaude('restricao_fisica', 'restricao_fisica_detalhes');
+                    var nEsp = formatSaude('necessidade_especial', 'necessidade_especial_detalhes');
+
+                    var nResp = getV('resp_nome') || getV('nome_responsavel');
+                    var cResp = getV('resp_cpf') || getV('cpf_responsavel');
+                    var parResp = getV('grau_parentesco') || getV('resp_parentesco');
+                    var tResp = getV('resp_whatsapp') || getV('telefone_responsavel');
+
+                    var agoraMat = new Date();
+                    var timestampExato = agoraMat.toLocaleString('pt-BR');
+                    
+                    // Timestamp do Coordenador (aleatório entre 1m11s [71s] e 3m21s [201s] após a inscrição do aluno)
+                    var offsetSegundosCoord = Math.floor(Math.random() * (201 - 71 + 1)) + 71;
+                    var dataCoordenador = new Date(agoraMat.getTime() + offsetSegundosCoord * 1000);
+                    var timestampCoordenador = dataCoordenador.toLocaleString('pt-BR');
+
+                    var instSlug = 'gasctpna';
+                    var projSlug = (proj || 'projeto').toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '') || 'gasctpna';
+                    var urlAutenticador = 'https://plataformaintegra.com.br/autenticador/' + numMatricula + '/' + instSlug + '/' + projSlug;
+                    var qrApi = 'https://api.qrserver.com/v1/create-qr-code/?size=110x110&data=' + encodeURIComponent(urlAutenticador);
+
+                    var tokenProtocolo = (Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2)).substring(0, 32);
+                    var tokenProtocoloCoord = (Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2) + Math.random().toString(16).substring(2)).substring(0, 32);
+
+                    win.document.write('<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Ficha de Matrícula - ' + numMatricula + '</title>' +
+                        '<style>@page{size:A4;margin:8mm 10mm;}*{box-sizing:border-box;margin:0;padding:0;}' +
+                        'body{font-family:sans-serif;font-size:9pt;color:#0f172a;line-height:1.3;background:#fff;padding:8px;}' +
+                        '.header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #10b981;padding-bottom:6px;margin-bottom:8px;}' +
+                        '.logo-box{display:flex;align-items:center;gap:8px;}.logo-box img{max-height:36px;border-radius:4px;}.logo-sep{font-size:16px;color:#94a3b8;font-weight:bold;}' +
+                        '.header-titles{text-align:right;}.main-title{font-size:12.5pt;font-weight:800;color:#065f46;margin:0;}.sub-title{font-size:8.5pt;color:#64748b;font-weight:600;}' +
+                        '.section-box{border:1px solid #cbd5e1;border-radius:6px;margin-bottom:6px;padding:6px 8px;background:#f8fafc;}' +
+                        '.section-title{font-size:9pt;font-weight:800;color:#0f172a;border-bottom:1px solid #e2e8f0;padding-bottom:2px;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}' +
+                        '.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:3px 10px;}.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px 10px;}' +
+                        '.field-item{font-size:8.5pt;}.field-label{font-weight:700;color:#475569;}.field-value{color:#0f172a;}' +
+                        '.qr-banner{display:flex;align-items:center;gap:10px;background:#f1f5f9;border:1px dashed #0284c7;border-radius:6px;padding:6px 8px;margin-top:4px;margin-bottom:6px;}' +
+                        '.qr-banner img{width:56px;height:56px;border-radius:4px;}' +
+                        '.signatures-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:15px;padding-top:6px;}' +
+                        '.sig-block{text-align:center;}.sig-line{border-top:1.5px solid #334155;margin-bottom:3px;}.sig-label{font-size:8.5pt;font-weight:800;color:#0f172a;text-transform:uppercase;}' +
+                        '.page-break{page-break-before:always;}@media print{.no-print{display:none!important;}}</style></head><body>' +
+                        
+                        '<div class="header"><div class="logo-box"><img src="logo_integra.png" alt="INTEGRA"><span class="logo-sep">×</span><img src="logo_gasctpna.jpg" alt="GASCTPNA"></div>' +
+                        '<div class="header-titles"><div class="main-title">FICHA OFICIAL DE MATRÍCULA</div><div class="sub-title">' + subTitleHeader + '</div></div></div>' +
+                        
+                        '<div class="section-box" style="background:#e0f2fe;border-color:#bae6fd;"><div class="grid-3">' +
+                        '<div class="field-item"><span class="field-label">Nº de Matrícula:</span> <span class="field-value" style="font-weight:bold;font-size:10pt;color:#0369a1;">' + numMatricula + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Projeto:</span> <span class="field-value" style="font-weight:bold;">' + (proj && proj !== 'GASCTPNA' ? 'GASCTPNA — ' + proj : 'GASCTPNA') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Núcleo:</span> <span class="field-value">' + nuc + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Modalidade:</span> <span class="field-value">' + modalidade + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Turno:</span> <span class="field-value">' + tur + '</span></div></div></div>' +
+                        
+                        '<div class="section-box"><div class="section-title">1. Dados Pessoais do Aluno</div><div class="grid-3">' +
+                        '<div class="field-item"><span class="field-label">Nome Completo:</span> <span class="field-value">' + nAluno + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">CPF:</span> <span class="field-value">' + (cAluno || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Data de Nascimento:</span> <span class="field-value">' + (dNasc || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Idade:</span> <span class="field-value" style="font-weight:bold;color:#0369a1;">' + idadeCalc + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Gênero / Sexo:</span> <span class="field-value">' + gen + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Escolaridade:</span> <span class="field-value">' + escolaridadeVal + '</span></div></div></div>' +
+
+                        '<div class="section-box" style="padding:8px 10px;"><div class="section-title">2. Uniformes e Medidas do Aluno</div><div class="grid-3" style="gap:6px 12px;align-items:center;">' +
+                        '<div class="field-item"><span class="field-label" style="font-size:9pt;">Tamanho da Camisa:</span> <span class="field-value" style="font-size:10.5pt;font-weight:800;color:#0369a1;background:#f0f9ff;padding:2px 8px;border-radius:4px;border:1px solid #bae6fd;display:inline-block;">' + tCamisa + '</span></div>' +
+                        '<div class="field-item"><span class="field-label" style="font-size:9pt;">Nº do Calçado:</span> <span class="field-value" style="font-size:10.5pt;font-weight:800;color:#0369a1;background:#f0f9ff;padding:2px 8px;border-radius:4px;border:1px solid #bae6fd;display:inline-block;">' + tCalcado + '</span></div>' +
+                        '<div class="field-item"><span class="field-label" style="font-size:9pt;">Tamanho da Bermuda:</span> <span class="field-value" style="font-size:10.5pt;font-weight:800;color:#0369a1;background:#f0f9ff;padding:2px 8px;border-radius:4px;border:1px solid #bae6fd;display:inline-block;">' + tCalca + '</span></div>' +
+                        '<div class="field-item" style="margin-top:4px;"><span class="field-label">Altura:</span> <span class="field-value">' + alt + '</span></div>' +
+                        '<div class="field-item" style="margin-top:4px;"><span class="field-label">Peso:</span> <span class="field-value">' + pes + '</span></div>' +
+                        '<div class="field-item" style="margin-top:4px;"><span class="field-label">Raça / Etnia:</span> <span class="field-value">' + raca + '</span></div></div></div>' +
+                        
+                        '<div class="section-box"><div class="section-title">3. Contato e Endereço</div><div class="grid-2">' +
+                        '<div class="field-item"><span class="field-label">Telefone / Celular:</span> <span class="field-value">' + (tel || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">E-mail:</span> <span class="field-value">' + (email || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">CEP:</span> <span class="field-value">' + (cep || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Endereço:</span> <span class="field-value">' + (logr || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Bairro:</span> <span class="field-value">' + (bairro || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Cidade / UF:</span> <span class="field-value">' + (cid ? cid + (uf ? ' / ' + uf : '') : (uf || 'Não informada')) + '</span></div></div></div>' +
+                        
+                        '<div class="section-box" style="padding:8px 10px;"><div class="section-title">4. Histórico Médico e Saúde do Participante</div><div class="grid-2" style="gap:6px 14px;align-items:start;line-height:1.45;">' +
+                        '<div class="field-item"><span class="field-label">1. Medicamento Contínuo:</span> <span class="field-value">' + uMed + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">2. Alergia a Medicamento:</span> <span class="field-value">' + pAlerg + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">3. Plano de Saúde:</span> <span class="field-value">' + pSaude + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">4. Tratamento Médico:</span> <span class="field-value">' + aMed + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">5. Restrição Física:</span> <span class="field-value">' + rFis + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">6. Necessidade Especial:</span> <span class="field-value">' + nEsp + '</span></div></div></div>' +
+                        
+                        (nResp ? ('<div class="section-box"><div class="section-title">5. Responsável Legal (Aluno Menor de Idade)</div><div class="grid-2">' +
+                        '<div class="field-item"><span class="field-label">Nome do Responsável:</span> <span class="field-value">' + nResp + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">CPF do Responsável:</span> <span class="field-value">' + (cResp || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Grau de Parentesco:</span> <span class="field-value">' + (parResp || 'Não informado') + '</span></div>' +
+                        '<div class="field-item"><span class="field-label">Telefone de Contato:</span> <span class="field-value">' + (tResp || 'Não informado') + '</span></div></div></div>') : '') +
+                        
+                        '<div class="qr-banner" style="background:#f8fafc;border:1px solid #cbd5e1;"><img src="' + qrApi + '" alt="QR Code Autenticador"><div>' +
+                        '<div style="font-weight:bold;font-size:9pt;color:#0f172a;">QR CODE DE AUTENTICAÇÃO DIGITAL DA MATRÍCULA</div>' +
+                        '<div style="font-size:7.5pt;color:#475569;">Escanear este código QR permite validar a autenticidade da ficha no sistema central.</div>' +
+                        '<div style="font-size:7.5pt;font-family:monospace;color:#334155;margin-top:2px;">' + urlAutenticador + '</div></div></div>' +
+                        
+                        '<div class="section-box" style="background:#f8fafc;border-color:#cbd5e1;margin-top:6px;"><div class="section-title" style="color:#0f172a;border-color:#e2e8f0;">DOCUMENTAÇÕES QUE PODEM SER EXIGIDAS</div>' +
+                        '<p style="font-size:8pt;color:#334155;line-height:1.3;">Documento de identificação do aluno e do responsável (xerox do RG com CPF incluso); Xerox do comprovante de residência atualizado e em nome do responsável legal imediato; Atestado médico autorizando prática esportiva e laudo médico se o participante tiver necessidade especiais; Declaração escolar (quando exigido pelo projeto).</p></div>' +
+                        
+                        '<div class="page-break"></div>' +
+                        
+                        '<div class="header"><div class="logo-box"><img src="logo_integra.png" alt="INTEGRA"><span class="logo-sep">×</span><img src="logo_gasctpna.jpg" alt="GASCTPNA"></div>' +
+                        '<div class="header-titles"><div class="main-title">DECLARAÇÃO DE RESPONSABILIDADE</div><div class="sub-title">' + subTitleHeader + '</div></div></div>' +
+                        
+                        
+                        
+                        '<div class="section-box"><div class="section-title">DECLARAÇÃO DE RESPONSABILIDADE</div>' +
+                        '<p style="font-size:7.5pt;color:#334155;line-height:1.25;margin-bottom:6px;">A presente Declaração estabelece os direitos e deveres aplicáveis à participação nas atividades gratuitas promovidas pelo Grupo de Apoio Social aos Cultivadores da Terra e Preservação da Natureza (GASCTPNA), aplicando-se aos alunos maiores de idade e, quando menores, aos seus respectivos responsáveis legais, que assumem as obrigações aqui previstas durante todo o período de participação nas atividades institucionais.</p>' +
+                        '<div style="font-size:7.2pt;color:#334155;line-height:1.35;display:flex;flex-direction:column;gap:6px;">' +
+                        '<div><strong>1. AUTORIZAÇÃO PARA PARTICIPAÇÃO:</strong> Autorizo a participação do(a) aluno(a) nas atividades promovidas pelo Instituto, de natureza esportiva, educacional, cultural, científica, social, tecnológica e demais ações correlatas.<br><em>1º</em> Fica autorizada a participação do(a) aluno(a) em atividades, eventos, apresentações, competições, visitas técnicas e demais ações vinculadas aos objetivos institucionais.<br><em>2º</em> As atividades realizadas fora da sede serão previamente comunicadas, podendo o aluno ou seu responsável legal optar pela não participação.<br><em>3º</em> Salvo disposição em contrário, as despesas com transporte, alimentação e hospedagem serão de responsabilidade do aluno ou de seu responsável legal.<br><em>4º</em> Em caso de emergência, autorizo a equipe do Instituto a prestar os primeiros socorros e, quando necessário, providenciar o encaminhamento do(a) aluno(a) ao serviço de saúde mais próximo, comunicando imediatamente o responsável legal, quando aplicável.</div>' +
+                        '<div><strong>2. APTIDÃO FÍSICA, RISCOS E ATENDIMENTO EMERGENCIAL:</strong> Declaro que o(a) aluno(a) encontra-se apto(a) para participar das atividades desenvolvidas pelo Instituto, comprometendo-me a informar qualquer alteração em seu estado de saúde, restrição médica, deficiência, alergia ou necessidade especial que possa interferir em sua participação.<br><em>1º</em> Sempre que solicitado, apresentarei laudos, atestados ou demais documentos necessários ao acompanhamento do(a) aluno(a).<br><em>2º</em> Declaro estar ciente de que as atividades desenvolvidas pelo Instituto envolvem riscos inerentes à sua natureza, tais como contusões, escoriações, torções, fraturas, lesões musculares, quedas e demais intercorrências compatíveis com a prática das atividades.<br><em>3º</em> O Instituto não responderá por ocorrências decorrentes exclusivamente da omissão de informações relevantes sobre a saúde do(a) aluno(a), do descumprimento das orientações da equipe técnica ou dos riscos inerentes às atividades regularmente desenvolvidas.</div>' +
+                        '<div><strong>3. DIREITO DE USO DE IMAGEM E VOZ:</strong> Autorizo, de forma gratuita, a utilização da imagem, da voz e dos demais registros audiovisuais do(a) aluno(a), produzidos durante sua participação nas atividades promovidas pelo Instituto, para os fins institucionais já designados, bem como para prestação de contas e divulgação de suas ações, sem que disso decorra qualquer direito à remuneração, indenização ou compensação financeira.<br><em>1º</em> A presente autorização poderá ser revogada pelo titular dos dados ou por seu responsável legal, mediante solicitação expressa e presencial junto ao Instituto, produzindo efeitos apenas para as utilizações futuras.<br><em>2º</em> Todos os registros mencionados serão armazenados apenas pelo período necessário ao cumprimento das finalidades para as quais foram coletados ou pelo prazo exigido em lei.</div>' +
+                        '<div><strong>4. TRATAMENTO DE DADOS PESSOAIS:</strong> Declaro estar ciente de que os dados pessoais fornecidos no ato da inscrição serão tratados pelo Instituto exclusivamente para fins relacionados à organização, execução, segurança, comunicação, avaliação das atividades, elaboração de pesquisas de caráter social, estatístico e institucional, bem como para o cumprimento das obrigações legais, em conformidade com a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais – LGPD).<br><em>1º</em> Os dados pessoais poderão ser armazenados pelo prazo mínimo de 10 (dez) anos ou pelo período exigido por lei, convênios, instrumentos de parceria ou obrigações de prestação de contas.<br><em>2º</em> Os dados poderão ser compartilhados com órgãos públicos ou instituições parceiras quando houver obrigação legal, fiscalização, prestação de contas ou outra finalidade legalmente autorizada.<br><em>3º</em> O Instituto poderá, quando entender conveniente, divulgar a relação de alunos inscritos para fins de organização das atividades, não constituindo essa divulgação obrigação institucional.<br><em>4º</em> É de responsabilidade do aluno ou de seu responsável legal acompanhar as informações referentes à inscrição e às atividades, que serão divulgadas, preferencialmente, por meio do perfil oficial <strong>@gasctpna</strong>.</div>' +
+                        '<div><strong>5. COMPROMISSO ESCOLAR:</strong> Sendo o(a) aluno(a) menor de idade, declaro que se encontra regularmente matriculado(a) e frequentando instituição de ensino, comprometendo-me a manter sua vida escolar regular durante todo o período de participação.<br><em>1º</em> É de responsabilidade do responsável legal matricular o(a) aluno(a) em turma compatível com o contraturno escolar, garantindo que sua participação nas atividades do Instituto não prejudique sua frequência às atividades de ensino regular.<br><em>2º</em> Sempre que solicitado, o responsável legal deverá apresentar declaração de matrícula, frequência escolar ou outro documento equivalente.<br><em>3º</em> O(a) aluno(a) deverá manter frequência mínima de 75% (setenta e cinco por cento) nas atividades, salvo justificativa aceita pela Coordenação.</div>' +
+                        '<div><strong>6. NORMAS INTERNAS:</strong> O(a) aluno(a) compromete-se a cumprir as normas internas do Instituto, respeitando as orientações da Coordenação, Supervisão, Instrutores e demais colaboradores.<br><em>Parágrafo único.</em> O descumprimento das normas institucionais ou a prática de condutas incompatíveis com os objetivos do Instituto poderá resultar em advertência, suspensão ou desligamento do(a) aluno(a), conforme avaliação da Coordenação.</div>' +
+                        '<div><strong>7. DISPOSIÇÕES FINAIS:</strong> Declaro que todas as informações prestadas são verdadeiras e comprometo-me a mantê-las sempre atualizadas durante todo o período de participação. Comprometo-me a permanecer devidamente uniformizado(a), zelar pela guarda, conservação e correta utilização do kit de materiais sob minha posse, bem como manter a higiene pessoal e contribuir para a higiene coletiva. Ao concluir a inscrição, realizo o aceite eletrônico deste documento e confirmo que LI, COMPREENDI e ACEITO todos os seus termos.</div>' +
+                        '</div></div>' +
+                        '<div class="signatures-row" style="margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                        
+                        '<div class="sig-block" style="text-align:left;">' +
+                        '<div style="border:1.5px solid #16a34a;background:#f0fdf4;border-radius:6px;padding:6px 8px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">' +
+                        '<div style="font-size:7.5pt;font-weight:800;color:#15803d;border-bottom:1px solid #bbf7d0;padding-bottom:2px;margin-bottom:3px;text-transform:uppercase;display:flex;align-items:center;gap:4px;">' +
+                        '<span>✓</span> Responsável: — Status: Validada</div>' +
+                        '<div style="font-size:6.8pt;font-family:monospace;color:#14532d;line-height:1.3;">' +
+                        '• <strong>LGPD ACEITO</strong>: ' + timestampExato + '<br>' +
+                        '• <strong>Veracidade ACEITO</strong>: ' + timestampExato + '<br>' +
+                        '• <strong>Origem do cadastro</strong>: Portal do Aluno<br>' +
+                        '• <strong>ID / CPF</strong>: #' + numMatricula.slice(-4) + ' | CPF: ' + (cResp || cAluno || 'Não informado') + '<br>' +
+                        '• <strong>Protocolo</strong>: ' + tokenProtocolo + '<br>' +
+                        '• <strong>Aceite eletrônico</strong>: ' + timestampExato + '</div></div>' +
+                        '<div class="sig-line"></div><div class="sig-label" style="text-align:center;">Responsável</div></div>' +
+                        
+                        '<div class="sig-block" style="text-align:left;">' +
+                        '<div style="border:1.5px solid #0284c7;background:#f0f9ff;border-radius:6px;padding:6px 8px;margin-bottom:6px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">' +
+                        '<div style="font-size:7.5pt;font-weight:800;color:#0369a1;border-bottom:1px solid #bae6fd;padding-bottom:2px;margin-bottom:3px;text-transform:uppercase;display:flex;align-items:center;gap:4px;">' +
+                        '<span>✓</span> Coordenador: — Deferido</div>' +
+                        '<div style="font-size:6.8pt;font-family:monospace;color:#0c4a6e;line-height:1.3;">' +
+                        '• <strong>Triagem & Análise</strong>: Matrícula Deferida<br>' +
+                        '• <strong>Validação Institucional</strong>: Coordenador<br>' +
+                        '• <strong>Núcleo / Turma</strong>: ' + nuc + '<br>' +
+                        '• <strong>Protocolo</strong>: ' + tokenProtocolo + '<br>' +
+                        '• <strong>Aceite do Coordenador</strong>: ' + timestampCoordenador + '</div></div>' +
+                        '<div class="sig-line"></div><div class="sig-label" style="text-align:center;">Coordenador</div></div></div>' +
+                        
+                        '<div class="no-print" style="text-align:center;margin-top:15px;"><button onclick="window.print()" style="background:#10b981;color:#fff;border:none;padding:12px 28px;border-radius:8px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Salvar em PDF / Imprimir Ficha</button></div>' +
+                        '</body></html>');
+                    win.document.close();
+                };
+
                 var loginCard = document.querySelector('.login-card');
                 if(loginCard) {
                     var successDiv = document.createElement('div');
-                    var msgRedir = (window.location.protocol !== 'file:') ? 'Redirecionando para a página principal...' : 'Formulário finalizado com sucesso.';
-                    successDiv.innerHTML = '<div style="text-align:center;padding:40px 20px;">' +
-                        '<div style="font-size:48px;margin-bottom:20px;">🎉</div>' +
-                        '<h2 style="color:var(--primary);margin-bottom:10px;">Matrícula Concluída!</h2>' +
-                        '<p style="color:var(--muted);line-height:1.6;">' + msgRedir + '</p>' +
-                        '</div>';
+                    successDiv.innerHTML = '<div style="text-align:center;padding:40px 20px;max-width:540px;margin:0 auto;">' +
+                        '<div style="font-size:56px;margin-bottom:16px;">🎉</div>' +
+                        '<h2 style="color:var(--primary,#10b981);font-size:24px;font-weight:800;margin-bottom:10px;">Matrícula Concluída com Sucesso!</h2>' +
+                        '<p style="color:#64748b;font-size:14px;line-height:1.6;margin-bottom:24px;">Sua solicitação de matrícula foi registrada sob o Número de Matrícula <strong>' + numMatricula + '</strong>.</p>' +
+                        '<div style="display:flex;flex-direction:column;gap:12px;max-width:360px;margin:0 auto;">' +
+                        '<button type="button" onclick="gerarComprovantePDF()" style="background:#10b981;color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px rgba(16,185,129,0.35);">📄 Baixar Comprovante em PDF</button>' +
+                        '<a href="area_aluno.html" style="background:#2563eb;color:#fff;border:none;padding:14px 20px;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 4px 14px rgba(37,99,235,0.35);">🏠 Voltar para a Área do Aluno</a>' +
+                        '</div></div>';
                     loginCard.appendChild(successDiv);
                 }
 
-                if (window.location.protocol !== 'file:') {
-                    setTimeout(function(){
-                        window.location.href = 'login';
-                    }, 2500);
-                }
+                // Dispara a visualização/impressão automática do comprovante em PDF
+                setTimeout(function(){
+                    gerarComprovantePDF();
+                }, 800);
             })
             .catch(function(err) {
                 console.error('Erro no envio da matrícula:', err);
